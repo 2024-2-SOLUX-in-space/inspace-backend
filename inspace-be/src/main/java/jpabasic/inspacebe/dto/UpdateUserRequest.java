@@ -6,7 +6,7 @@ public class UpdateUserRequest {
     private String password;
     private String passwordConfirmation;
 
-    // Getters and Setters
+    // Getters and setters
     public String getName() {
         return name;
     }

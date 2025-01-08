@@ -10,16 +10,21 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 public class SecurityConfig {
 
+    private final JwtProvider jwtProvider;
+
+    public SecurityConfig(JwtProvider jwtProvider) {
+        this.jwtProvider = jwtProvider;
+    }
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf().disable() // CSRF 비활성화
+                .csrf().disable()
                 .authorizeHttpRequests()
                 .requestMatchers("/api/auth/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll() // 인증 없이 허용
                 .anyRequest().authenticated() // 나머지 요청은 인증 필요
                 .and()
-                .httpBasic().disable() // HTTP Basic 인증 비활성화
-                .formLogin().disable(); // 기본 로그인 페이지 비활성화
+                .addFilterBefore(new JwtAuthenticationFilter(jwtProvider), org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
