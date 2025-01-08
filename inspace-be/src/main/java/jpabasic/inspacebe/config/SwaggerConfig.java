@@ -9,30 +9,28 @@ import org.springframework.context.annotation.Configuration;
 import io.swagger.v3.oas.models.info.Info;
 
 @Configuration
-//spring security 사용하는 경우
 public class SwaggerConfig {
+
     @Bean
-    public OpenAPI openAPI(){
-        String jwt="JWT";
-        SecurityRequirement securityRequirement=new SecurityRequirement().addList(jwt);
-        Components components=new Components().addSecuritySchemes(jwt,new SecurityScheme()
+    public OpenAPI openAPI() {
+        String jwt = "JWT";
+        SecurityRequirement securityRequirement = new SecurityRequirement().addList(jwt);
+        Components components = new Components().addSecuritySchemes(jwt, new SecurityScheme()
                 .name(jwt)
                 .type(SecurityScheme.Type.HTTP)
                 .scheme("bearer")
-                .bearerFormat("JWT")
-        );
+                .bearerFormat("JWT"));
 
         return new OpenAPI()
-                .components(new Components())
+                .components(components)
                 .info(apiInfo())
-                .addSecurityItem(securityRequirement)
-                .components(components);
+                .addSecurityItem(securityRequirement);
     }
 
-    private Info apiInfo(){
+    private Info apiInfo() {
         return new Info()
-                .title("API test")
-                .description("practice Swagger UI")
-                .version("1.0.0"); //API의 버전
+                .title("API Documentation")
+                .description("Swagger Integration with JWT")
+                .version("1.0.0");
     }
 }
