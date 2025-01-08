@@ -20,7 +20,6 @@ public class JwtProvider {
                 .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
                 .compact();
     }
-
     // RefreshToken 생성
     public String generateRefreshToken(String email) {
         return Jwts.builder()
