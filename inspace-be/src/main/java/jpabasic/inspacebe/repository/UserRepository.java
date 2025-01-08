@@ -9,3 +9,4 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(String email);
     boolean existsByEmail(String email); // 중복 이메일 체크 메서드
 }
+
