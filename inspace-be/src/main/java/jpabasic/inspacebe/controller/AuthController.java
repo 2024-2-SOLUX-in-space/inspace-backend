@@ -118,4 +118,27 @@ public class AuthController {
     private String generateResetToken(String email) {
         return email + "_reset_token"; // 실제로는 보안적인 이유로 토큰을 생성해야 합니다.
     }
+
+    // 로그아웃
+    @PostMapping("/logout")
+    public Map<String, Object> logout(@RequestHeader("Authorization") String authorizationHeader) {
+        Map<String, Object> response = new HashMap<>();
+
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            response.put("success", false);
+            response.put("message", "토큰이 없습니다.");
+            return response;
+        }
+
+        // 토큰에서 "Bearer " 부분을 제거하고 실제 토큰 값만 추출
+        String token = authorizationHeader.substring(7);
+
+        // 로그아웃 처리를 위해 토큰을 무효화하는 로직을 추가할 수 있습니다
+        // 예를 들어, 블랙리스트에 토큰을 추가하거나, 별도의 세션에서 토큰을 제거하는 방법 등을 사용할 수 있습니다.
+
+        // 여기서는 클라이언트가 토큰을 삭제하는 방식만 처리
+        response.put("success", true);
+        response.put("message", "로그아웃이 성공적으로 완료되었습니다.");
+        return response;
+    }
 }
