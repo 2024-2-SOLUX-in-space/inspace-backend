@@ -25,7 +25,7 @@ public class AuthController {
     @Autowired
     private JwtProvider jwtProvider;
 
-    @PostMapping("/register")
+    @PostMapping("/signup")
     public Map<String, Object> register(@RequestBody RegisterRequest request) {
         Map<String, Object> response = new HashMap<>();
 
