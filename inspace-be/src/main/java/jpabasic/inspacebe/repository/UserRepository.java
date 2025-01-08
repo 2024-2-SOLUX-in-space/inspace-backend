@@ -1,11 +1,10 @@
-package com.example.project.repository;
+package jpabasic.inspacebe.repository;
 
-import com.example.project.domain.User;
+import jpabasic.inspacebe.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
-    boolean existsByEmail(String email);
     Optional<User> findByEmail(String email);
 }

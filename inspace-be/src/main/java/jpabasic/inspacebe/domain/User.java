@@ -1,4 +1,4 @@
-package com.example.project.domain;
+package jpabasic.inspacebe.model;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@Builder // Lombok의 Builder 패턴을 사용
 public class User {
 
     @Id
@@ -18,7 +18,7 @@ public class User {
     private Long id;
 
     @Column(nullable = false)
-    private String name;
+    private String username;
 
     @Column(nullable = false, unique = true)
     private String email;

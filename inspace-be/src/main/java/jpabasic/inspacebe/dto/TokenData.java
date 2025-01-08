@@ -1,4 +1,4 @@
-package com.example.project.dto;
+package jpabasic.inspacebe.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
