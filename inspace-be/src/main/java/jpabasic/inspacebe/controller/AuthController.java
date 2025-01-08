@@ -26,8 +26,15 @@ public class AuthController {
     private JwtProvider jwtProvider;
 
     @PostMapping("/signup")
-    public Map<String, Object> register(@RequestBody RegisterRequest request) {
+    public Map<String, Object> signup(@RequestBody RegisterRequest request) {
         Map<String, Object> response = new HashMap<>();
+
+        // 이메일 중복 체크
+        if (userRepository.existsByEmail(request.getEmail())) {
+            response.put("success", false);
+            response.put("message", "이미 사용 중인 이메일입니다.");
+            return response;
+        }
 
         // 비밀번호 확인
         if (!request.getPassword().equals(request.getPasswordConfirmation())) {
@@ -36,7 +43,7 @@ public class AuthController {
             return response;
         }
 
-        // 사용자 생성
+        // 사용자 저장
         User user = new User();
         user.setName(request.getName());
         user.setEmail(request.getEmail());
