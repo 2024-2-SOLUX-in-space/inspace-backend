@@ -92,7 +92,7 @@ public class AuthController {
         return response;
     }
 
-    // 비밀번호 찾기 (이메일로 비밀번호 재설정 링크 전송)
+    // 비밀번호 찾기 (이메일로 저장된 비밀번호 전송)
     @PostMapping("/forgot-password")
     public Map<String, Object> forgotPassword(@RequestBody PasswordResetRequest request) {
         Map<String, Object> response = new HashMap<>();
@@ -105,9 +105,9 @@ public class AuthController {
             return response;
         }
 
-        // 이메일로 비밀번호 재설정 링크 전송 (실제 이메일 전송 로직은 EmailService에 구현)
-        String resetLink = "http://localhost:8080/reset-password?token=" + generateResetToken(user.getEmail()); // 임시 링크
-        emailService.sendPasswordResetEmail(user.getEmail(), resetLink);
+        // 사용자의 비밀번호를 이메일로 전송
+        String password = user.getPassword(); // 저장된 비밀번호를 가져옴
+        emailService.sendPasswordResetEmail(user.getEmail(), "Your password is: " + password); // 비밀번호를 이메일로 전송
 
         response.put("success", true);
         response.put("message", "입력된 이메일로 비밀번호가 전송되었습니다.");
