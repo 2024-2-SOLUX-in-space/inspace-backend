@@ -141,41 +141,4 @@ public class AuthController {
         response.put("message", "로그아웃이 성공적으로 완료되었습니다.");
         return response;
     }
-
-    @GetMapping("/user-info")
-    public Map<String, Object> getUserInfo(@RequestHeader("Authorization") String authorizationHeader) {
-        Map<String, Object> response = new HashMap<>();
-        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-            response.put("success", false);
-            response.put("message", "토큰이 없습니다.");
-            return response;
-        }
-
-        // 토큰 검증
-        String token = authorizationHeader.substring(7);
-        if (!jwtProvider.validateToken(token)) {
-            response.put("success", false);
-            response.put("message", "유효하지 않은 토큰입니다.");
-            return response;
-        }
-
-        // 토큰에서 이메일을 추출하여 사용자 정보 반환
-        String email = jwtProvider.getEmailFromToken(token);
-        User user = userRepository.findByEmail(email).orElse(null);
-        if (user == null) {
-            response.put("success", false);
-            response.put("message", "사용자를 찾을 수 없습니다.");
-            return response;
-        }
-
-        response.put("success", true);
-        response.put("message", "사용자 정보를 조회했습니다.");
-        Map<String, String> data = new HashMap<>();
-        data.put("name", user.getName());
-        data.put("email", user.getEmail());
-        response.put("data", data);
-
-        return response;
-    }
-
 }

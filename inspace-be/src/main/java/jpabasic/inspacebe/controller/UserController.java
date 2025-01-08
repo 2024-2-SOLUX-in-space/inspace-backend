@@ -29,13 +29,19 @@ public class UserController {
 
         // 현재 인증된 사용자 정보 가져오기
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            response.put("success", false);
+            response.put("message", "사용자 인증이 필요합니다.");
+            return response;
+        }
+
         String email = authentication.getName();  // 이메일은 인증된 사용자 이름으로 사용
 
         // 사용자 조회
         User user = userRepository.findByEmail(email).orElse(null);
         if (user == null) {
             response.put("success", false);
-            response.put("message", "인증이 실패하였습니다. 유효하지 않은 토큰입니다.");
+            response.put("message", "사용자 정보가 없습니다.");
             return response;
         }
 
@@ -57,18 +63,24 @@ public class UserController {
 
         // 현재 인증된 사용자 정보 가져오기
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            response.put("success", false);
+            response.put("message", "사용자 인증이 필요합니다.");
+            return response;
+        }
+
         String email = authentication.getName();  // 이메일은 인증된 사용자 이름으로 사용
 
         // 사용자 조회
         User user = userRepository.findByEmail(email).orElse(null);
         if (user == null) {
             response.put("success", false);
-            response.put("message", "인증이 실패하였습니다. 유효하지 않은 토큰입니다.");
+            response.put("message", "사용자 정보가 없습니다.");
             return response;
         }
 
         // 비밀번호 확인
-        if (!request.getPassword().equals(request.getPasswordConfirmation())) {
+        if (request.getPassword() == null || !request.getPassword().equals(request.getPasswordConfirmation())) {
             response.put("success", false);
             response.put("message", "비밀번호가 일치하지 않습니다.");
             return response;
