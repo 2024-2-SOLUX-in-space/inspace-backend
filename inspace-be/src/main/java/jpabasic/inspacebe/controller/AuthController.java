@@ -29,10 +29,10 @@ public class AuthController {
     public Map<String, Object> signup(@RequestBody RegisterRequest request) {
         Map<String, Object> response = new HashMap<>();
 
-        // 이메일 중복 체크
-        if (userRepository.existsByEmail(request.getEmail())) {
+        // 이메일 중복 확인
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             response.put("success", false);
-            response.put("message", "이미 사용 중인 이메일입니다.");
+            response.put("message", "이미 등록된 이메일입니다.");
             return response;
         }
 
@@ -43,7 +43,7 @@ public class AuthController {
             return response;
         }
 
-        // 사용자 저장
+        // 사용자 생성
         User user = new User();
         user.setName(request.getName());
         user.setEmail(request.getEmail());
