@@ -2,9 +2,11 @@ package jpabasic.inspacebe.controller;
 
 import jpabasic.inspacebe.dto.RegisterRequest;
 import jpabasic.inspacebe.dto.LoginRequest;
+import jpabasic.inspacebe.dto.PasswordResetRequest; // 비밀번호 찾기 요청 DTO
 import jpabasic.inspacebe.entity.User;
 import jpabasic.inspacebe.repository.UserRepository;
 import jpabasic.inspacebe.config.JwtProvider;
+import jpabasic.inspacebe.service.EmailService; // 이메일 서비스
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +27,10 @@ public class AuthController {
     @Autowired
     private JwtProvider jwtProvider;
 
+    @Autowired
+    private EmailService emailService; // 이메일 서비스
+
+    // 회원가입
     @PostMapping("/signup")
     public Map<String, Object> signup(@RequestBody RegisterRequest request) {
         Map<String, Object> response = new HashMap<>();
@@ -55,6 +61,7 @@ public class AuthController {
         return response;
     }
 
+    // 로그인
     @PostMapping("/login")
     public Map<String, Object> login(@RequestBody LoginRequest request) {
         Map<String, Object> response = new HashMap<>();
@@ -83,5 +90,32 @@ public class AuthController {
         response.put("data", data);
 
         return response;
+    }
+
+    // 비밀번호 찾기 (이메일로 비밀번호 재설정 링크 전송)
+    @PostMapping("/forgot-password")
+    public Map<String, Object> forgotPassword(@RequestBody PasswordResetRequest request) {
+        Map<String, Object> response = new HashMap<>();
+
+        // 이메일로 사용자 조회
+        User user = userRepository.findByEmail(request.getEmail()).orElse(null);
+        if (user == null) {
+            response.put("success", false);
+            response.put("message", "이메일이 존재하지 않습니다.");
+            return response;
+        }
+
+        // 이메일로 비밀번호 재설정 링크 전송 (실제 이메일 전송 로직은 EmailService에 구현)
+        String resetLink = "http://localhost:8080/reset-password?token=" + generateResetToken(user.getEmail()); // 임시 링크
+        emailService.sendPasswordResetEmail(user.getEmail(), resetLink);
+
+        response.put("success", true);
+        response.put("message", "입력된 이메일로 비밀번호가 전송되었습니다.");
+        return response;
+    }
+
+    // 비밀번호 재설정용 토큰 생성 (예시로 간단히 구현)
+    private String generateResetToken(String email) {
+        return email + "_reset_token"; // 실제로는 보안적인 이유로 토큰을 생성해야 합니다.
     }
 }
