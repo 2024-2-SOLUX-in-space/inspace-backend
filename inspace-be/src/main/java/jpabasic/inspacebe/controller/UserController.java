@@ -24,12 +24,17 @@ public class UserController {
 
     // 내 정보 조회
     @GetMapping
-    public ResponseEntity<Map<String, Object>> getUserInfo(@AuthenticationPrincipal User user) {
+    public ResponseEntity<Map<String, Object>> getUserInfo(@AuthenticationPrincipal String email) {
         Map<String, Object> response = new HashMap<>();
+
+        System.out.println("Authenticated Email: " + email);
+
+        // 사용자 조회
+        User user = userRepository.findByEmail(email).orElse(null);
 
         if (user == null) {
             response.put("success", false);
-            response.put("message", "인증이 실패하였습니다. 유효하지 않은 토큰입니다.");
+            response.put("message", "인증이 실패하였습니다. 유효하지 않은 사용자입니다.");
             return ResponseEntity.status(401).body(response);
         }
 
@@ -45,13 +50,18 @@ public class UserController {
 
     // 내 정보 수정
     @PatchMapping
-    public ResponseEntity<Map<String, Object>> updateUserInfo(@AuthenticationPrincipal User user,
+    public ResponseEntity<Map<String, Object>> updateUserInfo(@AuthenticationPrincipal String email,
                                                               @RequestBody UpdateUserRequest request) {
         Map<String, Object> response = new HashMap<>();
 
+        System.out.println("Authenticated Email: " + email);
+
+        // 사용자 조회
+        User user = userRepository.findByEmail(email).orElse(null);
+
         if (user == null) {
             response.put("success", false);
-            response.put("message", "인증이 실패하였습니다. 유효하지 않은 토큰입니다.");
+            response.put("message", "인증이 실패하였습니다. 유효하지 않은 사용자입니다.");
             return ResponseEntity.status(401).body(response);
         }
 

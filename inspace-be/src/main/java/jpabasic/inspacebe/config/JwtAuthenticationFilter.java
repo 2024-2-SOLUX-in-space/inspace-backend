@@ -24,16 +24,32 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         String authorizationHeader = request.getHeader("Authorization");
 
+        System.out.println("Authorization Header: " + authorizationHeader);
+
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            String token = authorizationHeader.substring(7);
+            String token = authorizationHeader.replaceFirst("Bearer ", ""); // 중복 Bearer 제거
+            System.out.println("Extracted Token: " + token);
+
             if (jwtProvider.validateToken(token)) {
+                System.out.println("Token is valid");
+
                 String email = jwtProvider.getEmailFromToken(token);
+                System.out.println("JWT Email: " + email);
+
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                        email, null, null); // 권한이 필요하다면 추가
+                        email, null, null); // 권한 추가 필요 시 추가
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+                System.out.println("Authentication set in SecurityContext");
+            } else {
+                System.out.println("Token is invalid or expired");
             }
+        } else {
+            System.out.println("No Authorization header or invalid format");
         }
+
+        System.out.println("SecurityContext: " + SecurityContextHolder.getContext().getAuthentication());
         filterChain.doFilter(request, response);
     }
 }
