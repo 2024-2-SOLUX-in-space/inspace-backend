@@ -16,20 +16,20 @@ public class SpaceDto {
     //user_id 추가해야함.
     private String sname;
     private int sthumb;
-    private Boolean is_primary=false;
-    private Boolean is_public=false;
+    private Boolean isPrimary=false;
+    private Boolean isPublic=false;
 
     @CurrentTimestamp
-    private LocalDateTime created_at;
+    private LocalDateTime createdAt;
 
     //Entity ->DTO
     public static SpaceDto toDto(Space space) {
         return SpaceDto.builder()
                 .sname(space.getSname())
                 .sthumb(space.getSthumb())
-                .is_primary(space.getIs_primary())
-                .is_public(space.getIs_public())
-                .created_at(space.getCreated_at())
+                .isPrimary(space.getIsPrimary())
+                .isPublic(space.getIsPublic())
+                .createdAt(space.getCreatedAt())
                 .build();
     }
 
