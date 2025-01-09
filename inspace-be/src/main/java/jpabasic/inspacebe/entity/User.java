@@ -33,10 +33,10 @@ public class User {
     private List<Item> items;
 
     // 팔로잉/팔로워 정리 테이블
-    @OneToMany(mappedBy = "from_user", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "followingId", fetch = FetchType.LAZY)
     private List<Follow> followings;
 
-    @OneToMany(mappedBy = "to_user", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "followerId", fetch = FetchType.LAZY)
     private List<Follow> followers;
 
     public User(String name, String email, String password) {
