@@ -32,6 +32,13 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Item> items;
 
+    // 팔로잉/팔로워 정리 테이블
+    @OneToMany(mappedBy = "from_user", fetch = FetchType.LAZY)
+    private List<Follow> followings;
+
+    @OneToMany(mappedBy = "to_user", fetch = FetchType.LAZY)
+    private List<Follow> followers;
+
     public User(String name, String email, String password) {
         this.name = name;
         this.email = email;
