@@ -27,6 +27,7 @@ public class SwaggerConfig {
                 .addSecurityItem(securityRequirement);
     }
 
+
     private Info apiInfo() {
         return new Info()
                 .title("API Documentation")
