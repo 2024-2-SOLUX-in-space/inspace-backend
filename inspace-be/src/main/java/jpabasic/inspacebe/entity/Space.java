@@ -19,7 +19,7 @@ public class Space {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int space_id;
+    private int spaceId;
 
     private String sname;
     private int sthumb;
