@@ -56,6 +56,7 @@ public class SpaceService {
         if(dto.getIsPublic()!=space.getIsPublic()) space.setIsPublic(dto.getIsPublic());
         if(dto.getIsPrimary()!=space.getIsPrimary()) space.setIsPrimary(dto.getIsPrimary());
 
+
         spaceRepository.save(space);
         dto=SpaceDto.toDto(space);
         return ResponseEntity.ok(dto);
