@@ -22,7 +22,7 @@ public class SpaceDto {
     @CurrentTimestamp
     private LocalDateTime created_at;
 
-    //Entity -> DTO
+    //Entity ->DTO
     public static SpaceDto toDto(Space space) {
         return SpaceDto.builder()
                 .sname(space.getSname())
