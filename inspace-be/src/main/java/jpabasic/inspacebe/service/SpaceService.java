@@ -53,8 +53,8 @@ public class SpaceService {
         if(dto.getSthumb()!=space.getSthumb()){
             space.setSthumb(dto.getSthumb());
         }
-        if(dto.getIs_public()!=space.getIs_public()) space.setIs_public(dto.getIs_public());
-        if(dto.getIs_primary()!=space.getIs_primary()) space.setIs_primary(dto.getIs_primary());
+        if(dto.getIsPublic()!=space.getIsPublic()) space.setIsPublic(dto.getIsPublic());
+        if(dto.getIsPrimary()!=space.getIsPrimary()) space.setIsPrimary(dto.getIsPrimary());
 
         spaceRepository.save(space);
         dto=SpaceDto.toDto(space);
