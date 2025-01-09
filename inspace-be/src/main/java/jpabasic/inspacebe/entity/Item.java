@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 package jpabasic.inspacebe.entity;
 
 import jakarta.persistence.*;
@@ -87,3 +88,26 @@ public class Item {
         return this.user != null ? this.user.getUserId() : null;
     }
 }
+=======
+package jpabasic.inspacebe.entity;
+
+import jakarta.persistence.*;
+import jpabasic.inspacebe.converter.CtypeAttributeConverter;
+
+@Entity
+public class Item {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int item_id;
+    private String title;
+    @Convert(converter= CtypeAttributeConverter.class)
+    private String ctype;
+    private String image_url;
+    private String contents_url;
+    private float position_x;
+    private float position_y;
+    private float height;
+    private float width;
+
+}
+>>>>>>> e799886927a0899c21fc59810cc494b5cdd71bf4
