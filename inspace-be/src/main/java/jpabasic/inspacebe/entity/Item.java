@@ -63,6 +63,14 @@ public class Item {
     @OneToOne(mappedBy = "item", cascade = CascadeType.ALL)
     private MusicItem musicItem;
 
+    public CType getCtype() {
+        return ctype;
+    }
+
+    public void setCtype(CType ctype) {
+        this.ctype = ctype;
+    }
+
     public Item(String title, CType ctype, String imageUrl, Boolean isUploaded, Space space) {
         this.title = title;
         this.ctype = ctype;
