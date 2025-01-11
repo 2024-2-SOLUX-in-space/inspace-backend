@@ -35,22 +35,25 @@ public class SearchControllerTest {
     }
 
     @Test
-    void testSearchImagesAndVideos() throws Exception {
-        // Mocking 서비스 레이어의 결과값
-        List<Map<String, String>> mockImageResults = Collections.emptyList(); // 반환 타입에 맞게 수정
-        List<Map<String, String>> mockVideoResults = Collections.emptyList();
-        List<Map<String, String>> mockMusicResults = Collections.emptyList();
+    void testSearchResults() throws Exception {
+        // Mocking SearchService의 searchAll 결과값
+        Map<String, Object> mockSearchResults = new HashMap<>();
+        mockSearchResults.put("images", List.of(Collections.singletonMap("title", "Image 1")));
+        mockSearchResults.put("videos", List.of(Collections.singletonMap("title", "Video 1")));
+        mockSearchResults.put("music", List.of(Collections.singletonMap("title", "Music 1")));
 
-        when(searchService.searchImages("testQuery")).thenReturn(mockImageResults);
-        when(searchService.searchYouTube("testQuery")).thenReturn(mockVideoResults);
-        when(searchService.searchSpotify("testQuery")).thenReturn(mockMusicResults);
+        when(searchService.searchAll("testQuery", null)).thenReturn(mockSearchResults);
 
+        // API 호출 및 검증
         mockMvc.perform(get("/api/search/results")
                         .param("query", "testQuery")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.images").exists())
                 .andExpect(jsonPath("$.videos").exists())
-                .andExpect(jsonPath("$.music").exists());
+                .andExpect(jsonPath("$.music").exists())
+                .andExpect(jsonPath("$.images[0].title").value("Image 1"))
+                .andExpect(jsonPath("$.videos[0].title").value("Video 1"))
+                .andExpect(jsonPath("$.music[0].title").value("Music 1"));
     }
 }

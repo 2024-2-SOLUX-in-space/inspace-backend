@@ -1,29 +1,14 @@
 package jpabasic.inspacebe.dto.item;
 
-import jpabasic.inspacebe.entity.CType;
-
 public class ItemResponseDto {
     private String itemId;
     private String title;
     private String imageUrl;
-    private String contentsUrl;
-    private CType ctype;
-    private Integer spaceId;
-    private Integer uid;
+    private Boolean isUploaded;
+    private Integer userId;
+    private String userName;
 
-    public ItemResponseDto() {
-    }
-
-    public ItemResponseDto(String itemId, String title, String imageUrl, String contentsUrl, CType ctype, Integer spaceId, Integer uid) {
-        this.itemId = itemId;
-        this.title = title;
-        this.imageUrl = imageUrl;
-        this.contentsUrl = contentsUrl;
-        this.ctype = ctype;
-        this.spaceId = spaceId;
-        this.uid = uid;
-    }
-
+    // Getters and Setters
     public String getItemId() {
         return itemId;
     }
@@ -48,48 +33,27 @@ public class ItemResponseDto {
         this.imageUrl = imageUrl;
     }
 
-    public String getContentsUrl() {
-        return contentsUrl;
+    public Boolean getIsUploaded() {
+        return isUploaded;
     }
 
-    public void setContentsUrl(String contentsUrl) {
-        this.contentsUrl = contentsUrl;
+    public void setIsUploaded(Boolean isUploaded) {
+        this.isUploaded = isUploaded;
     }
 
-    public CType getCtype() {
-        return ctype;
+    public Integer getUserId() {
+        return userId;
     }
 
-    public void setCtype(CType ctype) {
-        this.ctype = ctype;
+    public void setUserId(Integer userId) {
+        this.userId = userId;
     }
 
-    public Integer getSpaceId() {
-        return spaceId;
+    public String getUserName() {
+        return userName;
     }
 
-    public void setSpaceId(Integer spaceId) {
-        this.spaceId = spaceId;
-    }
-
-    public Integer getUid() {
-        return uid;
-    }
-
-    public void setUid(Integer uid) {
-        this.uid = uid;
-    }
-
-    @Override
-    public String toString() {
-        return "ItemResponseDto{" +
-                "itemId='" + itemId + '\'' +
-                ", title='" + title + '\'' +
-                ", imageUrl='" + imageUrl + '\'' +
-                ", contentsUrl='" + contentsUrl + '\'' +
-                ", ctype=" + ctype +
-                ", spaceId=" + spaceId +
-                ", uid=" + uid +
-                '}';
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 }
