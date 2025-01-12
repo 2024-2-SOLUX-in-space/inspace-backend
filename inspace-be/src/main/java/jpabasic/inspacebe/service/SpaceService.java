@@ -22,7 +22,7 @@ public class SpaceService {
         this.userRepository = userRepository;
     }
 
-    //새로운 공간 생성 
+    //새로운 공간 생성
     public SpaceDto createSpace(SpaceDto dto, Integer userId) {
 
 
