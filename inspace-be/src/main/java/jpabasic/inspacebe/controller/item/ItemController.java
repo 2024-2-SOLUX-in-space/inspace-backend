@@ -23,12 +23,14 @@ public class ItemController {
         this.spaceService = spaceService;
     }
 
+
     @GetMapping("/items/{itemId}")
     public ResponseEntity<ItemResponseDto> getItemDetails(@PathVariable("itemId") String itemId) {
         ItemResponseDto response = itemService.getItemDetails(itemId);
         return ResponseEntity.ok(response);
     }
 
+    
     @GetMapping("/items/space/{spaceId}")
     public ResponseEntity<SpaceDetailResponseDto> getSpaceDetails(@PathVariable("spaceId") int spaceId) {
         SpaceDetailResponseDto response = itemService.getSpaceDetails(spaceId);
