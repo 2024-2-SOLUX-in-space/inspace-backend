@@ -22,7 +22,8 @@ public class ArchiveRequestDto {
     private Float height;
     private Float width;
     private Float turnover;
-    private Integer order;
+    private Integer sequence;
+//    private User
 
     //DTO->Entity
     public static Item toEntity(ArchiveRequestDto archiveDto) {
@@ -38,7 +39,7 @@ public class ArchiveRequestDto {
                 .height(archiveDto.getHeight())
                 .width(archiveDto.getWidth())
                 .turnover(archiveDto.getTurnover())
-                .order(archiveDto.getOrder())
+                .sequence(archiveDto.getSequence())
                 .build();
     }
 

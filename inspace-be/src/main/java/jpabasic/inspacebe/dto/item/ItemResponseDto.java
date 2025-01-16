@@ -8,8 +8,8 @@ public class ItemResponseDto {
     private String imageUrl;
     private String contentsUrl;
     private CType ctype;
-    private Integer spaceId;
-    private Integer uid;
+//    private Integer spaceId;
+//    private Integer uid;
 
     public ItemResponseDto() {
     }
@@ -20,8 +20,8 @@ public class ItemResponseDto {
         this.imageUrl = imageUrl;
         this.contentsUrl = contentsUrl;
         this.ctype = ctype;
-        this.spaceId = spaceId;
-        this.uid = uid;
+//        this.spaceId = spaceId;
+//        this.uid = uid;
     }
 
     public String getItemId() {
@@ -64,21 +64,21 @@ public class ItemResponseDto {
         this.ctype = ctype;
     }
 
-    public Integer getSpaceId() {
-        return spaceId;
-    }
-
-    public void setSpaceId(Integer spaceId) {
-        this.spaceId = spaceId;
-    }
-
-    public Integer getUid() {
-        return uid;
-    }
-
-    public void setUid(Integer uid) {
-        this.uid = uid;
-    }
+//    public Integer getSpaceId() {
+//        return spaceId;
+//    }
+//
+//    public void setSpaceId(Integer spaceId) {
+//        this.spaceId = spaceId;
+//    }
+//
+//    public Integer getUid() {
+//        return uid;
+//    }
+//
+//    public void setUid(Integer uid) {
+//        this.uid = uid;
+//    }
 
     @Override
     public String toString() {
@@ -88,8 +88,8 @@ public class ItemResponseDto {
                 ", imageUrl='" + imageUrl + '\'' +
                 ", contentsUrl='" + contentsUrl + '\'' +
                 ", ctype=" + ctype +
-                ", spaceId=" + spaceId +
-                ", uid=" + uid +
+//                ", spaceId=" + spaceId +
+//                ", uid=" + uid +
                 '}';
     }
 }

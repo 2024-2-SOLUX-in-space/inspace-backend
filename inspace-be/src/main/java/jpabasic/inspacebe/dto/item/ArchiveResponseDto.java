@@ -21,7 +21,7 @@ public class ArchiveResponseDto {
     private Float height;
     private Float width;
     private Float turnover;
-    private Integer order;
+    private Integer sequence;
 
     //DTO->Entity
     public static Item toEntity(ArchiveRequestDto archiveDto) {
@@ -37,7 +37,7 @@ public class ArchiveResponseDto {
                 .height(archiveDto.getHeight())
                 .width(archiveDto.getWidth())
                 .turnover(archiveDto.getTurnover())
-                .order(archiveDto.getOrder())
+                .sequence(archiveDto.getSequence())
                 .build();
     }
 }

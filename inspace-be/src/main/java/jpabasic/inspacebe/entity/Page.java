@@ -22,14 +22,14 @@ public class Page {
     private int pageNumber;
 
     @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="space_id",referencedColumnName = "space_id",nullable = false)
+    @JoinColumn(name="space_id",referencedColumnName = "space_id")
     private Space space;
 
-//    @ManyToOne(fetch=FetchType.LAZY)
-//    @JoinColumn(name="user_id",referencedColumnName = "user_id",nullable = false)
-//    private User user;
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="user_id",referencedColumnName = "user_id")
+    private User user;
 
-    @OneToMany(mappedBy = "page") //cascade 값 변경 - 민서
+    @OneToMany(mappedBy = "page",cascade = CascadeType.ALL) //cascade 값 변경 - 민서
     private List<Item> items;
 
 

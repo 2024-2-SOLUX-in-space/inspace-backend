@@ -53,7 +53,7 @@ public class Space {
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
 
-    @OneToMany(mappedBy = "space", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "space", cascade = CascadeType.ALL, orphanRemoval = true) //민서 수정
     private List<Page> pages;
 
     public Space(User user, String sname, Boolean isPublic, Boolean isPrimary, LocalDateTime createdAt) {

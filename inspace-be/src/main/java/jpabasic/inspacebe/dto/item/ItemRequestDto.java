@@ -8,7 +8,7 @@ public class ItemRequestDto {
     private String contentsUrl;
     private CType ctype;
     private Integer spaceId;
-    private Integer uid;
+//    private Integer uid;
 
     // 기본 생성자
     public ItemRequestDto() {
@@ -21,7 +21,7 @@ public class ItemRequestDto {
         this.contentsUrl = contentsUrl;
         this.ctype = ctype;
         this.spaceId = spaceId;
-        this.uid = uid;
+//        this.uid = uid;
     }
 
     // Getter & Setter
@@ -64,14 +64,14 @@ public class ItemRequestDto {
     public void setSpaceId(Integer spaceId) {
         this.spaceId = spaceId;
     }
-
-    public Integer getUid() {
-        return uid;
-    }
-
-    public void setUid(Integer uid) {
-        this.uid = uid;
-    }
+//
+//    public Integer getUid() {
+//        return uid;
+//    }
+//
+//    public void setUid(Integer uid) {
+//        this.uid = uid;
+//    }
 
     @Override
     public String toString() {
@@ -81,7 +81,7 @@ public class ItemRequestDto {
                 ", contentsUrl='" + contentsUrl + '\'' +
                 ", ctype=" + ctype +
                 ", spaceId=" + spaceId +
-                ", uid=" + uid +
+//                ", uid=" + uid +
                 '}';
     }
 }

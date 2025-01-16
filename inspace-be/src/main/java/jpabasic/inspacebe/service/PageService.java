@@ -41,7 +41,7 @@ public class PageService {
             Page page=new Page();
             page.setPageNumber(i+1);
             page.setSpace(space);
-//            page.setUser(user);
+            page.setUser(user);
             pageRepository.save(page);
         }
 
