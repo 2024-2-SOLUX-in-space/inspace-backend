@@ -45,8 +45,6 @@ public class PageService {
             pageRepository.save(page);
         }
 
-
-
     }
 
     //페이지 조회
@@ -81,6 +79,7 @@ public class PageService {
             item.setPage(page);
         }
     }
+
 
     //페이지(아카이브)에서 아이템 삭제
     public void deleteItemOnPage(String itemId) {

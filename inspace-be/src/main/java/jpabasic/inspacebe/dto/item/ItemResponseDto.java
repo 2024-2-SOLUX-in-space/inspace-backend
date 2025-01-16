@@ -1,7 +1,10 @@
 package jpabasic.inspacebe.dto.item;
 
 import jpabasic.inspacebe.entity.CType;
+import jpabasic.inspacebe.entity.Item;
+import lombok.Builder;
 
+@Builder
 public class ItemResponseDto {
     private String itemId;
     private String title;
@@ -91,5 +94,17 @@ public class ItemResponseDto {
 //                ", spaceId=" + spaceId +
 //                ", uid=" + uid +
                 '}';
+    }
+
+    //Entity->toDto
+    public static ItemResponseDto toDto(Item item) {
+        return ItemResponseDto.builder()
+                .itemId(item.getItemId())
+                .title(item.getTitle())
+                .imageUrl(item.getImageUrl())
+                .contentsUrl(item.getContentsUrl())
+                .ctype(item.getCtype())
+                .build();
+
     }
 }

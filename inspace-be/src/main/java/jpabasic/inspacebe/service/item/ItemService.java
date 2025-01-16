@@ -12,24 +12,26 @@ import jpabasic.inspacebe.repository.ItemRepository;
 import jpabasic.inspacebe.repository.PageRepository;
 import jpabasic.inspacebe.repository.SpaceRepository;
 import jpabasic.inspacebe.repository.UserRepository;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 
 public class ItemService {
 
     private final ItemRepository itemRepository;
-    private final UserRepository userRepository;
     private final SpaceRepository spaceRepository;
 
-    public ItemService(ItemRepository itemRepository, PageRepository pageRepository, SpaceRepository spaceRepository,UserRepository userRepository) {
+    public ItemService(ItemRepository itemRepository, PageRepository pageRepository, SpaceRepository spaceRepository) {
         this.itemRepository = itemRepository;
 //        this.pageRepository=pageRepository;
         this.spaceRepository = spaceRepository;
-        this.userRepository = userRepository;
+
     }
 
     // 아이템 등록 로직 //민서 수정
@@ -50,7 +52,7 @@ public class ItemService {
         item.setImageUrl(itemRequestDto.getImageUrl());
         item.setContentsUrl(itemRequestDto.getContentsUrl());
         item.setCtype(itemRequestDto.getCtype());
-        item.setSpace(space);
+//        item.setSpace(space);
 //        item.setUser(user);
 
         return itemRepository.save(item);
@@ -81,6 +83,18 @@ public class ItemService {
     @Transactional
     public void deleteItemOnSpace(String itemId){
         itemRepository.deleteById(itemId);
+    }
+
+    //저장소 조회(카테고리별 아이템 전체 조회)
+    @Transactional
+    public ResponseEntity<List<ItemResponseDto>> getItemsBySpace (Integer spaceId) {
+        Space space = spaceRepository.findById(spaceId)
+                .orElseThrow(() -> new IllegalArgumentException("Space not found"));
+        List<Item> items=space.getItems();
+        List<ItemResponseDto> responseDtos=items.stream()
+                .map(ItemResponseDto::toDto)//각 Item을 ItemResponseDto로 변환.
+                .collect(Collectors.toList()); //결과를 리스트로 수집
+        return ResponseEntity.ok(responseDtos);
     }
 
 }

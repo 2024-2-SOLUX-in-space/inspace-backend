@@ -56,6 +56,9 @@ public class Space {
     @OneToMany(mappedBy = "space", cascade = CascadeType.ALL, orphanRemoval = true) //민서 수정
     private List<Page> pages;
 
+    @OneToMany(mappedBy="space")
+    private List<Item> items;
+
     public Space(User user, String sname, Boolean isPublic, Boolean isPrimary, LocalDateTime createdAt) {
         this.user = user;
         this.sname = sname;

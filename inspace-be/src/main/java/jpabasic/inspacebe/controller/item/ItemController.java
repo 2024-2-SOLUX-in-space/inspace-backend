@@ -48,14 +48,26 @@ public class ItemController {
             String message="해당 아이템을 삭제하는데 실패했어요.";
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseMessage(message));
         }
-        String message="페이지에서 해당 아이템을 성공적으로 삭제했어요.";
+        String message="해당 아이템을 성공적으로 삭제했어요.";
         return new ResponseEntity<>(message,HttpStatus.OK);
     }
 
     //유저가 직접 올리는 이미지 저장 //POST
 
-    //저장소 조회(카테고리별 아이템 전체 조회)
 
+
+    //저장소 조회(카테고리별 아이템 전체 조회)
+    @GetMapping("/space/{spaceId}")
+    public ResponseEntity<?> getItemsBySpace(@PathVariable Integer spaceId) {
+        ResponseEntity<List<ItemResponseDto>> items;
+        try {
+            items = itemService.getItemsBySpace(spaceId);
+        } catch (Exception e) {
+            String message = "아이템 조회에 실패했어요.";
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseMessage(message));
+        }
+        return items;
+    }
 
 
 }

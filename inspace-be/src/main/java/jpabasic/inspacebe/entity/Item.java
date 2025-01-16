@@ -55,9 +55,9 @@ public class Item {
     @Column(name = "is_uploaded", columnDefinition = "TINYINT(1)") // TINYINT(1) 사용
     private Boolean isUploaded;
 
-    @ManyToOne
-    @JoinColumn(name = "space_id")
-    private Space space;
+//    @ManyToOne
+//    @JoinColumn(name = "space_id")
+//    private Space space;
 
 //    @ManyToOne
 //    @JoinColumn(name = "user_id", referencedColumnName = "user_id") // 유저와의 연결   선택적

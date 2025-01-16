@@ -13,6 +13,7 @@ import lombok.Setter;
 @Builder
 public class ArchiveRequestDto {
 
+    private String id;
     private String title;
     private String imageUrl;
     private String contentsUrl;
@@ -28,6 +29,7 @@ public class ArchiveRequestDto {
     //DTO->Entity
     public static Item toEntity(ArchiveRequestDto archiveDto) {
         return Item.builder()
+                .itemId(archiveDto.getId())
                 .title(archiveDto.getTitle())
                 .imageUrl(archiveDto.getImageUrl())
                 .contentsUrl(archiveDto.getContentsUrl())
