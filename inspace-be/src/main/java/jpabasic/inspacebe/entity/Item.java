@@ -5,15 +5,15 @@ import jpabasic.inspacebe.entity.CType;
 import jpabasic.inspacebe.entity.ImageItem;
 import jpabasic.inspacebe.entity.MusicItem;
 import jpabasic.inspacebe.entity.YoutubeItem;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Table(name = "item")
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 public class Item {
 
     @Id
@@ -40,8 +40,21 @@ public class Item {
     @Column(name = "position_y")
     private Float positionY;
 
-    @Column(name = "size", columnDefinition = "json")
-    private String size;
+    @Column(name = "height") //추가
+    private Float height;
+
+    @Column(name = "width") //추가
+    private Float width;
+
+    @Column(name = "turnover") //추가
+    private Float turnover;
+
+    //이미지가 겹쳐져있는 경우 순서
+    @Column(name="order") //추가
+    private Integer order;
+
+//    @Column(name = "size", columnDefinition = "json")
+//    private String size;
 
     @Column(name = "is_uploaded", columnDefinition = "TINYINT(1)") // TINYINT(1) 사용
     private Boolean isUploaded;
@@ -63,12 +76,17 @@ public class Item {
     @OneToOne(mappedBy = "item", cascade = CascadeType.ALL)
     private MusicItem musicItem;
 
-    public Item(String title, CType ctype, String imageUrl, Boolean isUploaded, Space space) {
+    @ManyToOne
+    @JoinColumn(name = "page_id")
+    private Page page;  // Page와의 관계를 설정하는 필드
+
+    public Item(String title, CType ctype, String imageUrl, Boolean isUploaded, Space space,Page page) {
         this.title = title;
         this.ctype = ctype;
         this.imageUrl = imageUrl;
         this.isUploaded = isUploaded;
         this.space = space;
+        this.page = page;
     }
 
     public void setSpaceId(Integer spaceId) {

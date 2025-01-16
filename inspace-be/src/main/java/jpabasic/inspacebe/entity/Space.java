@@ -54,7 +54,7 @@ public class Space {
     private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "space", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Item> items;
+    private List<Page> pages;
 
     public Space(User user, String sname, Boolean isPublic, Boolean isPrimary, LocalDateTime createdAt) {
         this.user = user;

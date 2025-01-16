@@ -3,6 +3,7 @@ package jpabasic.inspacebe.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 import java.util.List;
 
@@ -44,4 +45,6 @@ public class User {
         this.email = email;
         this.password = password;
     }
+
+
 }

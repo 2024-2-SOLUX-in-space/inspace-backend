@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jpabasic.inspacebe.converter.ResponseMessage;
 import jpabasic.inspacebe.entity.Space;
+import jpabasic.inspacebe.service.PageService;
 import jpabasic.inspacebe.service.SpaceService;
 import jpabasic.inspacebe.dto.SpaceDto;
 import org.apache.coyote.Response;
@@ -20,10 +21,12 @@ import java.util.List;
 public class SpaceController {
 
     private final SpaceService spaceService;
+    private final PageService pageService;
 
 
-    public SpaceController(SpaceService spaceService) {
+    public SpaceController(SpaceService spaceService, PageService pageService) {
         this.spaceService = spaceService;
+        this.pageService = pageService;
     }
 
 
@@ -40,6 +43,8 @@ public class SpaceController {
         return new ResponseEntity<>(dto, HttpStatus.CREATED);
     }
 
+
+
     @GetMapping("/spaces/{user_id}")
     @Operation(summary="공간 목록 조회")
     public ResponseEntity<?> getSpaces(@PathVariable Integer user_id) {
@@ -53,7 +58,7 @@ public class SpaceController {
         return new ResponseEntity<>(spaces, HttpStatus.OK);
     }
 
-    //예외처리해야.
+
     //우선 대표 공간만 보이도록?
     @GetMapping("/space/{space_id}")
     @Operation(summary="특정 공간 조회")
@@ -66,6 +71,8 @@ public class SpaceController {
         }
         return new ResponseEntity<>(space, HttpStatus.OK);
     }
+
+
 
     @PutMapping("/spaces/{space_id}") //user_id통해 본인만 설정 변경할 수 있도록.
     @Operation(summary="공간 설정 변경")

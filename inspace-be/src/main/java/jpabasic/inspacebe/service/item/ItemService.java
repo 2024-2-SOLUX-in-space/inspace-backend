@@ -1,20 +1,27 @@
 package jpabasic.inspacebe.service.item;
 
+import jpabasic.inspacebe.dto.item.ArchiveRequestDto;
 import jpabasic.inspacebe.dto.item.ItemRequestDto;
 import jpabasic.inspacebe.dto.item.ItemResponseDto;
 import jpabasic.inspacebe.entity.Item;
+import jpabasic.inspacebe.entity.Page;
+import jpabasic.inspacebe.entity.Space;
 import jpabasic.inspacebe.repository.ItemRepository;
+import jpabasic.inspacebe.repository.PageRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
 public class ItemService {
 
     private final ItemRepository itemRepository;
+    private final PageRepository pageRepository;
 
-    public ItemService(ItemRepository itemRepository) {
+    public ItemService(ItemRepository itemRepository, PageRepository pageRepository) {
         this.itemRepository = itemRepository;
+        this.pageRepository=pageRepository;
     }
 
     // 아이템 등록 로직
@@ -48,5 +55,21 @@ public class ItemService {
         responseDto.setUid(item.getUid());
 
         return responseDto;
+    }
+
+    //아이템 페이지(아카이브)에 등록 //pageNum 수정 필요.
+    public void archiveItems (Integer pageId,List<ArchiveRequestDto> dtoList) {
+
+        Page page= pageRepository.findById(pageId)
+                .orElseThrow(() -> new RuntimeException("Page not found with id: " + pageId));
+
+
+        for(ArchiveRequestDto dto : dtoList) {
+            Item item= ArchiveRequestDto.toEntity(dto);
+            itemRepository.save(item);
+            item.setPage(page);
+        }
+
+
     }
 }
