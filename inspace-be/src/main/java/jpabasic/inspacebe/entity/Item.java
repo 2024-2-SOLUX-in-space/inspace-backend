@@ -55,8 +55,8 @@ public class Item {
 //    @Column(name = "size", columnDefinition = "json")
 //    private String size;
 
-    @Column(name = "is_uploaded", columnDefinition = "TINYINT(1)") // TINYINT(1) 사용
-    private Boolean isUploaded;
+//    @Column(name = "is_uploaded", columnDefinition = "TINYINT(1)") // TINYINT(1) 사용
+//    private Boolean isUploaded;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "space_id")

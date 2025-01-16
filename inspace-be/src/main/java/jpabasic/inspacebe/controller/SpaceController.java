@@ -90,7 +90,7 @@ public class SpaceController {
                 .body(space);
     }
 
-    @DeleteMapping("/spaces/{space_id}/{user_id}")
+    @DeleteMapping("/spaces/{space_id}")
     @Operation(summary="공간 삭제")
     public ResponseEntity<?> deleteSpace(@PathVariable int space_id){
         try{
