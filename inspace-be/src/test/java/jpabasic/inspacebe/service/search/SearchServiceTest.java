@@ -40,10 +40,10 @@ public class SearchServiceTest {
         String mockUrl = "https://www.googleapis.com/customsearch/v1?q=testQuery&cx=null&key=null&searchType=image";
 
         // Mocking RestTemplate 호출 결과
-        List<Map<String, String>> mockResponse = Collections.emptyList(); // 반환 타입에 맞게 수정
+        List<Map<String, Object>> mockResponse = Collections.emptyList(); // 반환 타입에 맞게 수정
         when(searchService.searchImages(query)).thenReturn(mockResponse);
 
-        List<Map<String, String>> result = searchService.searchImages(query);
+        List<Map<String, Object>> result = searchService.searchImages(query);
 
         assertNotNull(result);
     }

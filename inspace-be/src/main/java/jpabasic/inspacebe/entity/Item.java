@@ -1,10 +1,6 @@
 package jpabasic.inspacebe.entity;
 
 import jakarta.persistence.*;
-import jpabasic.inspacebe.entity.CType;
-import jpabasic.inspacebe.entity.ImageItem;
-import jpabasic.inspacebe.entity.MusicItem;
-import jpabasic.inspacebe.entity.YoutubeItem;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -23,6 +19,7 @@ public class Item {
 
     @Column(name = "title", length = 10)
     private String title;
+
 
     @Enumerated(EnumType.STRING)
     @Column(name = "ctype")
@@ -63,6 +60,11 @@ public class Item {
     @OneToOne(mappedBy = "item", cascade = CascadeType.ALL)
     private MusicItem musicItem;
 
+
+    public CType getCtype() {
+        return ctype;
+    }
+
     public Item(String title, CType ctype, String imageUrl, Boolean isUploaded, Space space) {
         this.title = title;
         this.ctype = ctype;
@@ -70,6 +72,7 @@ public class Item {
         this.isUploaded = isUploaded;
         this.space = space;
     }
+
 
     public void setSpaceId(Integer spaceId) {
         Space space = new Space();
