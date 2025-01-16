@@ -1,5 +1,7 @@
 package jpabasic.inspacebe.dto.item;
 
+import jpabasic.inspacebe.entity.CType;
+
 public class ItemResponseDto {
     private String itemId;
     private String title;
@@ -7,6 +9,7 @@ public class ItemResponseDto {
     private Boolean isUploaded;
     private Integer userId;
     private String userName;
+    private CType ctype;
 
     // Getters and Setters
     public String getItemId() {
@@ -56,4 +59,14 @@ public class ItemResponseDto {
     public void setUserName(String userName) {
         this.userName = userName;
     }
+
+    public CType getCtype() {
+        return ctype;
+    }
+
+    public void setCtype(CType ctype) {
+        this.ctype = ctype;
+    }
+
+
 }

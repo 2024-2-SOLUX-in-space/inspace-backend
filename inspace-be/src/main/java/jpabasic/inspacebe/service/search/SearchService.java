@@ -1,7 +1,9 @@
 package jpabasic.inspacebe.service.search;
 
 import jpabasic.inspacebe.entity.Item;
+import jpabasic.inspacebe.entity.Space;
 import jpabasic.inspacebe.repository.ItemRepository;
+import jpabasic.inspacebe.repository.SpaceRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -12,6 +14,9 @@ import java.util.*;
 public class SearchService {
 
     private final ItemRepository itemRepository;
+
+    private final SpaceRepository spaceRepository;
+
     private final WebClient webClient;
     private final Map<String, Map<String, Object>> crawledItemCache = new HashMap<>();
 
@@ -38,8 +43,9 @@ public class SearchService {
     @Value("${spotify.client-secret}")
     private String clientSecret;
 
-    public SearchService(ItemRepository itemRepository, WebClient.Builder webClientBuilder) {
+    public SearchService(ItemRepository itemRepository, SpaceRepository spaceRepository, WebClient.Builder webClientBuilder) {
         this.itemRepository = itemRepository;
+        this.spaceRepository = spaceRepository;
         this.webClient = webClientBuilder.build();
     }
 
@@ -51,6 +57,7 @@ public class SearchService {
             results.put("uploadedImages", searchUserUploadedImages(query));
             results.put("videos", searchYouTube(query));
             results.put("music", searchSpotify(query));
+            results.put("spaces", searchSpaces(query));
             return results;
         }
 
@@ -67,9 +74,8 @@ public class SearchService {
             results.put("music", searchSpotify(query));
         }
         if (filters.contains("space")) {
-            results.put("space", Collections.emptyList());
+            results.put("spaces", searchSpaces(query)); // Space 검색 결과 추가
         }
-
         return results;
     }
 
@@ -211,6 +217,26 @@ public class SearchService {
                 crawledItemCache.put(uuid, trackData); // 캐시에 저장
 
                 results.add(trackData);
+            }
+        }
+
+        return results;
+    }
+
+    public List<Map<String, Object>> searchSpaces(String query) {
+        List<Space> spaces = spaceRepository.findAll();
+        List<Map<String, Object>> results = new ArrayList<>();
+
+        for (Space space : spaces) {
+            if (space.getSname() != null && space.getSname().contains(query)) {
+                Map<String, Object> spaceData = new HashMap<>();
+                spaceData.put("spaceId", space.getSpaceId());
+                spaceData.put("sname", space.getSname());
+                spaceData.put("userId", space.getUser().getUserId());
+                spaceData.put("isPublic", space.getIsPublic());
+                spaceData.put("createdAt", space.getCreatedAt());
+
+                results.add(spaceData);
             }
         }
 

@@ -1,9 +1,12 @@
 package jpabasic.inspacebe.service.item;
 
 
+import jpabasic.inspacebe.dto.SpaceDetailResponseDto;
 import jpabasic.inspacebe.dto.item.ItemResponseDto;
 import jpabasic.inspacebe.entity.Item;
+import jpabasic.inspacebe.entity.Space;
 import jpabasic.inspacebe.repository.ItemRepository;
+import jpabasic.inspacebe.repository.SpaceRepository;
 import jpabasic.inspacebe.service.search.SearchService;
 import org.springframework.stereotype.Service;
 
@@ -13,11 +16,13 @@ import java.util.Map;
 public class ItemService {
 
     private final ItemRepository itemRepository;
+    private final SpaceRepository spaceRepository;
     private final SearchService searchService;
 
-    public ItemService(ItemRepository itemRepository, SearchService searchService) {
+    public ItemService(ItemRepository itemRepository, SearchService searchService, SpaceRepository spaceRepository) {
         this.itemRepository = itemRepository;
         this.searchService = searchService;
+        this.spaceRepository = spaceRepository;
     }
 
     public ItemResponseDto getItemDetails(String itemId) {
@@ -58,4 +63,15 @@ public class ItemService {
 
         return dto;
     }
+
+    public SpaceDetailResponseDto getSpaceDetails(int spaceId) {
+        // spaceId로 Space 조회
+        Space space = spaceRepository.findById(spaceId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 공간입니다."));
+
+        // Space 데이터를 DTO로 변환하여 반환
+        return SpaceDetailResponseDto.fromEntity(space);
+    }
+
+
 }
