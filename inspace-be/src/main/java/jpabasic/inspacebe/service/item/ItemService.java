@@ -34,7 +34,7 @@ public class ItemService {
         item.setImageUrl(itemRequestDto.getImageUrl());
         item.setContentsUrl(itemRequestDto.getContentsUrl());
         item.setCtype(itemRequestDto.getCtype());
-        item.setSpaceId(itemRequestDto.getSpaceId());
+//        item.setSpaceId(itemRequestDto.getSpaceId());
         item.setUid(itemRequestDto.getUid());
 
         return itemRepository.save(item);
@@ -51,25 +51,17 @@ public class ItemService {
         responseDto.setImageUrl(item.getImageUrl());
         responseDto.setContentsUrl(item.getContentsUrl());
         responseDto.setCtype(item.getCtype());
-        responseDto.setSpaceId(item.getSpaceId());
-        responseDto.setUid(item.getUid());
+//        responseDto.setSpaceId(item.getSpaceId());
+//        responseDto.setUid(item.getUid());
 
         return responseDto;
     }
 
-    //아이템 페이지(아카이브)에 등록 //pageNum 수정 필요.
-    public void archiveItems (Integer pageId,List<ArchiveRequestDto> dtoList) {
-
-        Page page= pageRepository.findById(pageId)
-                .orElseThrow(() -> new RuntimeException("Page not found with id: " + pageId));
 
 
-        for(ArchiveRequestDto dto : dtoList) {
-            Item item= ArchiveRequestDto.toEntity(dto);
-            itemRepository.save(item);
-            item.setPage(page);
-        }
-
-
+    //아이템 저장소에서 삭제
+    public void deleteItemOnSpace(String itemId){
+        itemRepository.deleteById(itemId);
     }
+
 }

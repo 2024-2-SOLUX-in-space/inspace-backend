@@ -8,7 +8,7 @@ import jpabasic.inspacebe.entity.YoutubeItem;
 import lombok.*;
 
 @Entity
-@Table(name = "item")
+@Table(name = "\"item\"")
 @Getter
 @Setter
 @Builder
@@ -21,11 +21,11 @@ public class Item {
     @Column(name = "item_id", nullable = false)
     private String itemId;
 
-    @Column(name = "title", length = 10)
+    @Column(name = "title")
     private String title;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "ctype")
+    @Column(name = "ctype",columnDefinition = "varchar(10)")
     private CType ctype;
 
     @Column(name = "image_url", columnDefinition = "TEXT")
@@ -59,13 +59,13 @@ public class Item {
     @Column(name = "is_uploaded", columnDefinition = "TINYINT(1)") // TINYINT(1) 사용
     private Boolean isUploaded;
 
-    @ManyToOne
-    @JoinColumn(name = "space_id", referencedColumnName = "space_id", nullable = false)
-    private Space space;
-
-    @ManyToOne
-    @JoinColumn(name = "uid", referencedColumnName = "user_id", nullable = true) // 유저와의 연결 선택적
-    private User user;
+//    @ManyToOne
+//    @JoinColumn(name = "space_id", referencedColumnName = "space_id", nullable = false)
+//    private Space space;
+//
+//    @ManyToOne
+//    @JoinColumn(name = "uid", referencedColumnName = "user_id", nullable = true) // 유저와의 연결 선택적
+//    private User user;
 
     @OneToOne(mappedBy = "item", cascade = CascadeType.ALL)
     private YoutubeItem youTubeItem;
@@ -77,36 +77,36 @@ public class Item {
     private MusicItem musicItem;
 
     @ManyToOne
-    @JoinColumn(name = "page_id")
+    @JoinColumn(name = "page_id",referencedColumnName = "page_id",nullable = false)
     private Page page;  // Page와의 관계를 설정하는 필드
 
-    public Item(String title, CType ctype, String imageUrl, Boolean isUploaded, Space space,Page page) {
+    public Item(String title, CType ctype, String imageUrl, Boolean isUploaded, Page page) {
         this.title = title;
         this.ctype = ctype;
         this.imageUrl = imageUrl;
         this.isUploaded = isUploaded;
-        this.space = space;
+//        this.space = space;
         this.page = page;
     }
 
     public void setSpaceId(Integer spaceId) {
         Space space = new Space();
         space.setSpaceId(spaceId); // Space 객체에 ID 설정
-        this.space = space;
+//        this.space = space;
     }
 
     public void setUid(Integer uid) {
         User user = new User();
         user.setUserId(uid); // User 객체에 ID 설정
-        this.user = user;
+//        this.user = user;
     }
 
-    public Integer getSpaceId() {
-        return this.space != null ? this.space.getSpaceId() : null;
-    }
+//    public Integer getSpaceId() {
+//        return this.space != null ? this.space.getSpaceId() : null;
+//    }
 
-    public Integer getUid() {
-        return this.user != null ? this.user.getUserId() : null;
-    }
+//    public Integer getUid() {
+//        return this.user != null ? this.user.getUserId() : null;
+//    }
 }
 

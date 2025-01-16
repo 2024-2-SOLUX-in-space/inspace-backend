@@ -25,12 +25,20 @@ public class Page {
     @JoinColumn(name="space_id",referencedColumnName = "space_id",nullable = false)
     private Space space;
 
-    @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="user_id",referencedColumnName = "user_id",nullable = false)
-    private User user;
+//    @ManyToOne(fetch=FetchType.LAZY)
+//    @JoinColumn(name="user_id",referencedColumnName = "user_id",nullable = false)
+//    private User user;
 
-    @OneToMany(mappedBy = "page", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "page") //cascade 값 변경 - 민서
     private List<Item> items;
+
+
+    //아카이브에서 아이템 삭제하는 경우
+    //자식 객체는 그대로 두고, page와의 매핑관계만 끊기
+    public void removeItem(Item item) {
+        this.items.remove(item);
+        item.setPage(null);
+    }
 
 
 

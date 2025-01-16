@@ -1,10 +1,13 @@
 package jpabasic.inspacebe.controller.item;
 
+import io.swagger.v3.oas.annotations.Operation;
+import jpabasic.inspacebe.converter.ResponseMessage;
 import jpabasic.inspacebe.dto.item.ArchiveRequestDto;
 import jpabasic.inspacebe.dto.item.ItemRequestDto;
 import jpabasic.inspacebe.dto.item.ItemResponseDto;
 import jpabasic.inspacebe.entity.Item;
 import jpabasic.inspacebe.service.item.ItemService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,28 +38,25 @@ public class ItemController {
     }
 
 
-    //아이템 페이지(아카이브)에 등록
-    @PutMapping("/archive/{pageId}")
-    public ResponseEntity<?> archiveItems(@PathVariable Integer pageId, @RequestBody List<ArchiveRequestDto> archiveDtos) {
+    //아이템 저장소에서 삭제 //자식 객체는 삭제되면 안됨. (youtube,image..)
+    @DeleteMapping("/{itemId}")
+    @Operation(summary="아이템을 저장소에서 삭제")
+    public ResponseEntity<?> deleteItemOnSpace(@PathVariable String itemId) {
         try{
-            itemService.archiveItems(pageId,archiveDtos);
+            itemService.deleteItemOnSpace(itemId);
         }catch(Exception e){
-            String message="아이템 등록에 실패했어요. 다시 시도해주세요.";
-            return ResponseEntity.badRequest().body(message);
+            String message="해당 아이템을 삭제하는데 실패했어요.";
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseMessage(message));
         }
-        String message="페이지가 성공적으로 저장되었어요.";
-        return ResponseEntity.ok().body(message);
+        String message="페이지에서 해당 아이템을 성공적으로 삭제했어요.";
+        return new ResponseEntity<>(message,HttpStatus.OK);
     }
-
-    //아이템 페이지에서 삭제 //put mapping //매핑된 page entity와의 관계 삭제하는 방향으로
-
-    //아이템 저장소에서 삭제 //delete mapping
 
     //유저가 직접 올리는 이미지 저장 //POST
 
     //저장소 조회(카테고리별 아이템 전체 조회)
 
-    //
+
 
 }
 

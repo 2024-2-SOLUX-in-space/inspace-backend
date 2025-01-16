@@ -30,8 +30,8 @@ public class User {
     @OneToMany(mappedBy = "user", fetch=FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Space> spaces;
 
-    @OneToMany(mappedBy = "user", fetch=FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Item> items;
+//    @OneToMany(mappedBy = "user", fetch=FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<Item> items;
 
     // 팔로잉/팔로워 정리 테이블
     @OneToMany(mappedBy = "followingId", fetch = FetchType.LAZY)

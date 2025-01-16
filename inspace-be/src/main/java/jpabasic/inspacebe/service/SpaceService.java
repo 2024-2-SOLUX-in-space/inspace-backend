@@ -53,8 +53,8 @@ public class SpaceService {
             space.setUser(user);
             spaceRepository.save(space);
 
-            Integer id=space.getSpaceId();
-            pageService.createPages(id);
+            Integer pageId=space.getSpaceId();
+            pageService.createPages(pageId,userId);
 
             return SpaceDto.toDto(space);
 
