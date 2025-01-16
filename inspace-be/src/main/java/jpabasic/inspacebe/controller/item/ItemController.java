@@ -52,11 +52,13 @@ public class ItemController {
         return new ResponseEntity<>(message,HttpStatus.OK);
     }
 
+
+
     //유저가 직접 올리는 이미지 저장 //POST
 
 
 
-    //저장소 조회(카테고리별 아이템 전체 조회)
+    //저장소 조회(카테고리별 아이템 전체 조회) //아직 카테고리별 처리 안함.
     @GetMapping("/space/{spaceId}")
     public ResponseEntity<?> getItemsBySpace(@PathVariable Integer spaceId) {
         ResponseEntity<List<ItemResponseDto>> items;

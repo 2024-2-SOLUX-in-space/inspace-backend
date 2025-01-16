@@ -1,5 +1,6 @@
 package jpabasic.inspacebe.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -30,6 +31,7 @@ public class Page {
     private User user;
 
     @OneToMany(mappedBy = "page",cascade = CascadeType.ALL) //cascade 값 변경 - 민서
+    @JsonIgnoreProperties({"page"})
     private List<Item> items;
 
 

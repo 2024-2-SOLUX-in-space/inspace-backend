@@ -1,5 +1,6 @@
 package jpabasic.inspacebe.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -57,6 +58,7 @@ public class Space {
     private List<Page> pages;
 
     @OneToMany(mappedBy="space")
+    @JsonIgnoreProperties({"space"})
     private List<Item> items;
 
     public Space(User user, String sname, Boolean isPublic, Boolean isPrimary, LocalDateTime createdAt) {

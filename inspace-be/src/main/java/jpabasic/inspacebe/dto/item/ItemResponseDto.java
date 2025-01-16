@@ -2,9 +2,12 @@ package jpabasic.inspacebe.dto.item;
 
 import jpabasic.inspacebe.entity.CType;
 import jpabasic.inspacebe.entity.Item;
-import lombok.Builder;
+import lombok.*;
 
 @Builder
+@Getter
+@Setter
+@AllArgsConstructor
 public class ItemResponseDto {
     private String itemId;
     private String title;

@@ -25,23 +25,28 @@ public class PageController {
     }
 
 
-    //페이지 조회
-    @GetMapping("")
+    //페이지 조회 //완료
+  @GetMapping("")
     @Operation(summary="페이지 조회")
-    public ResponseEntity<?> getPage(@RequestParam Integer pageNum,@RequestParam Integer spaceId) {
-        PageDto page;
+    public ResponseEntity<?> getPage(@RequestParam Integer space_id,@RequestParam Integer pageNum) {
         try{
-            page=pageService.getPage(pageNum,spaceId);
+            List<ArchiveRequestDto> items=pageService.getPage(pageNum,space_id);
+
+            //빈 배열도 정상 응답으로 처리
+            return ResponseEntity.ok(items);
+        }catch(IllegalArgumentException e){
+
+            // 요청 데이터가 잘못된 경우 (404 처리)
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseMessage(e.getMessage()));
         }catch(Exception e){
-            String message="페이지 조회에 실패했어요.";
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseMessage(message));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseMessage("페이지 조회에 실패했습니다."));
         }
-        return new ResponseEntity<>(page,HttpStatus.OK);
     }
 
 
-    //아이템 페이지(아카이브)에 등록
+    //아이템 페이지(아카이브)에 등록 //pageId 할당-등록 시
     @PutMapping("/{pageId}")
+    @Operation(summary="페이지(아카이브)에 아이템 등록/수정")
     public ResponseEntity<?> archiveItems(@PathVariable Integer pageId, @RequestBody List<ArchiveRequestDto> archiveDtos) {
         try{
             pageService.archiveItems(pageId,archiveDtos);
@@ -55,7 +60,7 @@ public class PageController {
 
 
 
-    //페이지(아카이브)에서 아이템 삭제
+    //페이지(아카이브)에서 아이템 삭제  //완료
     @DeleteMapping("/{itemId}")
     @Operation(summary="페이지(아카이브)에서 아이템 삭제")
     public ResponseEntity<?> deleteItemOnPage(@PathVariable String itemId) {

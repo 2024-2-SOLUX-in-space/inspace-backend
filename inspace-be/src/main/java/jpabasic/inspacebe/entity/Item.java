@@ -1,7 +1,10 @@
 package jpabasic.inspacebe.entity;
 
 import jakarta.persistence.*;
+import jpabasic.inspacebe.dto.item.ArchiveRequestDto;
 import lombok.*;
+
+import java.util.List;
 
 @Entity
 @Table(name = "item")
@@ -55,9 +58,9 @@ public class Item {
     @Column(name = "is_uploaded", columnDefinition = "TINYINT(1)") // TINYINT(1) 사용
     private Boolean isUploaded;
 
-//    @ManyToOne
-//    @JoinColumn(name = "space_id")
-//    private Space space;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "space_id")
+    private Space space;
 
 //    @ManyToOne
 //    @JoinColumn(name = "user_id", referencedColumnName = "user_id") // 유저와의 연결   선택적
@@ -72,39 +75,15 @@ public class Item {
     @OneToOne(mappedBy = "item", cascade = CascadeType.ALL)
     private MusicItem musicItem;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "page_id",referencedColumnName = "page_id")
     private Page page;  // Page와의 관계를 설정하는 필드
 
 
 
-//    public Item(String title, CType ctype, String imageUrl, Boolean isUploaded,Space space, Page page) {
-//        this.title = title;
-//        this.ctype = ctype;
-//        this.imageUrl = imageUrl;
-//        this.isUploaded = isUploaded;
-//        this.space = space;
-//        this.page = page;
-//    }
-//
-//    public void setSpaceId(Integer spaceId) {
-//        Space space = new Space();
-//        space.setSpaceId(spaceId); // Space 객체에 ID 설정
-//        this.space = space;
-//    }
-//
-//    public void setUid(Integer uid) {
-//        User user = new User();
-//        user.setUserId(uid); // User 객체에 ID 설정
-//        this.user = user;
-//    }
-//
-//    public Integer getSpaceId() {
-//        return this.space != null ? this.space.getSpaceId() : null;
-//    }
-//
-//    public Integer getUid() {
-//        return this.user != null ? this.user.getUserId() : null;
-//    }
+
+
+
+
 }
 

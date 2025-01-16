@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import jpabasic.inspacebe.dto.item.ArchiveRequestDto;
 import jpabasic.inspacebe.dto.item.ItemRequestDto;
 import jpabasic.inspacebe.dto.item.ItemResponseDto;
+import jpabasic.inspacebe.dto.page.PageDto;
 import jpabasic.inspacebe.entity.Item;
 import jpabasic.inspacebe.entity.Page;
 import jpabasic.inspacebe.entity.Space;
@@ -91,10 +92,8 @@ public class ItemService {
         Space space = spaceRepository.findById(spaceId)
                 .orElseThrow(() -> new IllegalArgumentException("Space not found"));
         List<Item> items=space.getItems();
-        List<ItemResponseDto> responseDtos=items.stream()
-                .map(ItemResponseDto::toDto)//각 Item을 ItemResponseDto로 변환.
-                .collect(Collectors.toList()); //결과를 리스트로 수집
-        return ResponseEntity.ok(responseDtos);
+        List<ItemResponseDto> dtos=PageDto.getItemList(items);
+        return ResponseEntity.ok(dtos);
     }
 
 }

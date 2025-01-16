@@ -13,7 +13,8 @@ import lombok.Setter;
 @Builder
 public class ArchiveRequestDto {
 
-    private String id;
+
+    private String itemId;
     private String title;
     private String imageUrl;
     private String contentsUrl;
@@ -29,7 +30,7 @@ public class ArchiveRequestDto {
     //DTO->Entity
     public static Item toEntity(ArchiveRequestDto archiveDto) {
         return Item.builder()
-                .itemId(archiveDto.getId())
+                .itemId(archiveDto.getItemId())
                 .title(archiveDto.getTitle())
                 .imageUrl(archiveDto.getImageUrl())
                 .contentsUrl(archiveDto.getContentsUrl())
@@ -44,6 +45,26 @@ public class ArchiveRequestDto {
                 .sequence(archiveDto.getSequence())
                 .build();
     }
+
+    //item->ArchiveRequestDto
+    //페이지 조회에 사용
+    public static ArchiveRequestDto toArchiveDto(Item item) {
+        return ArchiveRequestDto.builder()
+                .itemId(item.getItemId())
+                .title(item.getTitle())
+                .imageUrl(item.getImageUrl())
+                .contentsUrl(item.getContentsUrl())
+                .ctype(item.getCtype())
+                .positionX(item.getPositionX())
+                .positionY(item.getPositionY())
+                .width(item.getWidth())
+                .turnover(item.getTurnover())
+                .sequence(item.getSequence())
+                .build();
+    }
+
+
+
 
 
 
