@@ -117,7 +117,7 @@ public class PageService {
             Item item= ArchiveRequestDto.toEntity(dto);
             item.setPage(page);
             itemRepository.save(item);
-            item.setPage(page);
+
         }
 
 

@@ -57,8 +57,9 @@ public class Item {
 //    @Column(name = "size", columnDefinition = "json")
 //    private String size;
 
-//    @Column(name = "is_uploaded", columnDefinition = "TINYINT(1)") // TINYINT(1) 사용
-//    private Boolean isUploaded;
+    //사용자가 직접 올린 사진인지의 여부.
+    @Column(name = "is_uploaded", columnDefinition = "TINYINT(1)") // TINYINT(1) 사용
+    private Boolean isUploaded;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "space_id")

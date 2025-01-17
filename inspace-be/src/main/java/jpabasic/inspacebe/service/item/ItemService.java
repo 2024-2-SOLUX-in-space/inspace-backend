@@ -69,11 +69,9 @@ public class ItemService {
         dto.setItemId(item.getItemId());
         dto.setTitle(item.getTitle());
         dto.setImageUrl(item.getImageUrl());
-//        dto.setIsUploaded(item.getIsUploaded());
+        dto.setIsUploaded(item.getIsUploaded());
 
-
-        //민서 수정 //isUploaded=true 고르는 것이 아닌, "Page와 매핑이 되어 있는 경우"로 대체.
-        if (item.getPageId() != null) {
+        if (item.getIsUploaded()) {
             dto.setUserId(item.getUser().getUserId());
             dto.setUserName(item.getUser().getName());
         } else {
@@ -82,7 +80,6 @@ public class ItemService {
 
         return dto;
     }
-
 
     //아이템 저장소에서 삭제
     @Transactional

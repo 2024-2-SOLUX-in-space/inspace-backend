@@ -16,6 +16,7 @@ public class ItemResponseDto {
     private String userName;
     private CType ctype;
     private String contentsUrl;
+    private Boolean isUploaded;
 //    private Integer spaceId;
 //    private Integer uid;
 
