@@ -10,6 +10,7 @@ import java.util.List;
 
 @Repository
 public interface SpaceRepository extends JpaRepository<Space, Integer> {
-
+    @Query("SELECT s FROM Space s WHERE s.spaceId = :spaceId")
+    Space findSpaceById(@Param("spaceId") Integer spaceId);
 
 }

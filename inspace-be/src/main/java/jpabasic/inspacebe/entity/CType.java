@@ -25,4 +25,7 @@ public enum CType {
     public String toValue() {
         return name().toLowerCase(); // 반환 시 소문자로 반환
     }
+
+
+
 }

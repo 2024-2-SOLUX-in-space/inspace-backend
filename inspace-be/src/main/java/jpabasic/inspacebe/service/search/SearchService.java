@@ -1,7 +1,9 @@
 package jpabasic.inspacebe.service.search;
 
 import jpabasic.inspacebe.entity.Item;
+import jpabasic.inspacebe.entity.Space;
 import jpabasic.inspacebe.repository.ItemRepository;
+import jpabasic.inspacebe.repository.SpaceRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -12,7 +14,19 @@ import java.util.*;
 public class SearchService {
 
     private final ItemRepository itemRepository;
+
+    private final SpaceRepository spaceRepository;
+
     private final WebClient webClient;
+    private final Map<String, Map<String, Object>> crawledItemCache = new HashMap<>();
+
+    public Optional<Map<String, Object>> getCachedItem(String itemId) {
+        return Optional.ofNullable(crawledItemCache.get(itemId));
+    }
+
+    public void saveToCache(String itemId, Map<String, Object> itemData) {
+        crawledItemCache.put(itemId, itemData);
+    }
 
     @Value("${google.api-key}")
     private String apiKey;
@@ -29,8 +43,9 @@ public class SearchService {
     @Value("${spotify.client-secret}")
     private String clientSecret;
 
-    public SearchService(ItemRepository itemRepository, WebClient.Builder webClientBuilder) {
+    public SearchService(ItemRepository itemRepository, SpaceRepository spaceRepository, WebClient.Builder webClientBuilder) {
         this.itemRepository = itemRepository;
+        this.spaceRepository = spaceRepository;
         this.webClient = webClientBuilder.build();
     }
 
@@ -42,11 +57,12 @@ public class SearchService {
             results.put("uploadedImages", searchUserUploadedImages(query));
             results.put("videos", searchYouTube(query));
             results.put("music", searchSpotify(query));
+            results.put("spaces", searchSpaces(query));
             return results;
         }
 
         if (filters.contains("image")) {
-            List<Map<String, String>> combinedImages = new ArrayList<>();
+            List<Map<String, Object>> combinedImages = new ArrayList<>();
             combinedImages.addAll(searchImages(query));
             combinedImages.addAll(searchUserUploadedImages(query));
             results.put("images", combinedImages);
@@ -58,28 +74,28 @@ public class SearchService {
             results.put("music", searchSpotify(query));
         }
         if (filters.contains("space")) {
-            results.put("space", Collections.emptyList());
+            results.put("spaces", searchSpaces(query)); // Space 검색 결과 추가
         }
-
         return results;
     }
 
-    public List<Map<String, String>> searchUserUploadedImages(String query) {
+    public List<Map<String, Object>> searchUserUploadedImages(String query) {
         List<Item> items = itemRepository.findUploadedItems(query);
 
-        List<Map<String, String>> results = new ArrayList<>();
+        List<Map<String, Object>> results = new ArrayList<>();
         for (Item item : items) {
-            Map<String, String> imageData = new HashMap<>();
+            Map<String, Object> imageData = new HashMap<>();
             imageData.put("title", item.getTitle());
             imageData.put("imageUrl", item.getImageUrl());
             imageData.put("itemId", item.getItemId());
+            imageData.put("isUploaded", true);
             results.add(imageData);
         }
 
         return results;
     }
 
-    public List<Map<String, String>> searchImages(String query) {
+    public List<Map<String, Object>> searchImages(String query) {
         String url = String.format(
                 "https://www.googleapis.com/customsearch/v1?q=%s&cx=%s&key=%s&searchType=image",
                 query, searchEngineId, apiKey
@@ -91,16 +107,22 @@ public class SearchService {
                 .bodyToMono(Map.class)
                 .block();
 
-        List<Map<String, String>> results = new ArrayList<>();
+        List<Map<String, Object>> results = new ArrayList<>();
         if (response != null && response.containsKey("items")) {
             List<Map<String, Object>> items = (List<Map<String, Object>>) response.get("items");
 
             for (Map<String, Object> item : items) {
-                Map<String, String> imageData = new HashMap<>();
-                imageData.put("title", (String) item.get("title"));
+                Map<String, Object> imageData = new HashMap<>();
+                imageData.put("title", item.get("title"));
                 Map<String, String> image = (Map<String, String>) item.get("image");
                 imageData.put("url", image.get("thumbnailLink"));
-                imageData.put("contextLink", image.get("contextLink"));
+                imageData.put("contextLink", item.get("link"));
+                imageData.put("isUploaded", false);
+
+                String uuid = UUID.randomUUID().toString();
+                imageData.put("itemId", uuid);
+                crawledItemCache.put(uuid, imageData); // 캐시에 저장
+
                 results.add(imageData);
             }
         }
@@ -108,7 +130,7 @@ public class SearchService {
         return results;
     }
 
-    public List<Map<String, String>> searchYouTube(String query) {
+    public List<Map<String, Object>> searchYouTube(String query) {
         String url = String.format(
                 "https://www.googleapis.com/youtube/v3/search?part=snippet&q=%s&type=video&maxResults=10&key=%s",
                 query, youtubeApiKey
@@ -120,20 +142,25 @@ public class SearchService {
                 .bodyToMono(Map.class)
                 .block();
 
-        List<Map<String, String>> results = new ArrayList<>();
+        List<Map<String, Object>> results = new ArrayList<>();
         if (response != null && response.containsKey("items")) {
             List<Map<String, Object>> items = (List<Map<String, Object>>) response.get("items");
 
             for (Map<String, Object> item : items) {
-                Map<String, String> videoData = new HashMap<>();
+                Map<String, Object> videoData = new HashMap<>();
                 Map<String, Object> id = (Map<String, Object>) item.get("id");
                 Map<String, Object> snippet = (Map<String, Object>) item.get("snippet");
                 Map<String, Object> thumbnails = (Map<String, Object>) snippet.get("thumbnails");
                 Map<String, String> defaultThumbnail = (Map<String, String>) thumbnails.get("default");
 
-                videoData.put("title", (String) snippet.get("title"));
+                videoData.put("title", snippet.get("title"));
                 videoData.put("url", "https://www.youtube.com/watch?v=" + id.get("videoId"));
                 videoData.put("thumbnail", defaultThumbnail.get("url"));
+                videoData.put("isUploaded", false);
+
+                String uuid = UUID.randomUUID().toString();
+                videoData.put("itemId", uuid);
+                crawledItemCache.put(uuid, videoData); // 캐시에 저장
 
                 results.add(videoData);
             }
@@ -141,7 +168,6 @@ public class SearchService {
 
         return results;
     }
-
 
     private String getSpotifyAccessToken() {
         String tokenUrl = "https://accounts.spotify.com/api/token";
@@ -158,7 +184,7 @@ public class SearchService {
         return (String) response.get("access_token");
     }
 
-    public List<Map<String, String>> searchSpotify(String query) {
+    public List<Map<String, Object>> searchSpotify(String query) {
         String accessToken = getSpotifyAccessToken();
         String url = String.format("https://api.spotify.com/v1/search?q=%s&type=track&limit=5", query);
 
@@ -169,23 +195,48 @@ public class SearchService {
                 .bodyToMono(Map.class)
                 .block();
 
-        List<Map<String, String>> results = new ArrayList<>();
+        List<Map<String, Object>> results = new ArrayList<>();
         if (response != null && response.containsKey("tracks")) {
             Map<String, Object> tracks = (Map<String, Object>) response.get("tracks");
             List<Map<String, Object>> items = (List<Map<String, Object>>) tracks.get("items");
 
             for (Map<String, Object> item : items) {
-                Map<String, String> trackData = new HashMap<>();
+                Map<String, Object> trackData = new HashMap<>();
                 Map<String, Object> album = (Map<String, Object>) item.get("album");
                 List<Map<String, String>> artists = (List<Map<String, String>>) item.get("artists");
                 Map<String, String> externalUrls = (Map<String, String>) item.get("external_urls");
 
-                trackData.put("title", (String) item.get("name"));
+                trackData.put("title", item.get("name"));
                 trackData.put("url", externalUrls.get("spotify"));
                 trackData.put("artist", artists.get(0).get("name"));
-                trackData.put("thumbnail", (String) ((Map<String, Object>) ((List<?>) album.get("images")).get(0)).get("url"));
+                trackData.put("thumbnail", ((Map<String, Object>) ((List<?>) album.get("images")).get(0)).get("url"));
+                trackData.put("isUploaded", false);
+
+                String uuid = UUID.randomUUID().toString();
+                trackData.put("itemId", uuid);
+                crawledItemCache.put(uuid, trackData); // 캐시에 저장
 
                 results.add(trackData);
+            }
+        }
+
+        return results;
+    }
+
+    public List<Map<String, Object>> searchSpaces(String query) {
+        List<Space> spaces = spaceRepository.findAll();
+        List<Map<String, Object>> results = new ArrayList<>();
+
+        for (Space space : spaces) {
+            if (space.getSname() != null && space.getSname().contains(query)) {
+                Map<String, Object> spaceData = new HashMap<>();
+                spaceData.put("spaceId", space.getSpaceId());
+                spaceData.put("sname", space.getSname());
+                spaceData.put("userId", space.getUser().getUserId());
+                spaceData.put("isPublic", space.getIsPublic());
+                spaceData.put("createdAt", space.getCreatedAt());
+
+                results.add(spaceData);
             }
         }
 

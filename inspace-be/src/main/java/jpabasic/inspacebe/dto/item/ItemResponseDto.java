@@ -12,8 +12,10 @@ public class ItemResponseDto {
     private String itemId;
     private String title;
     private String imageUrl;
-    private String contentsUrl;
+    private Integer userId;
+    private String userName;
     private CType ctype;
+    private String contentsUrl;
 //    private Integer spaceId;
 //    private Integer uid;
 
@@ -54,13 +56,6 @@ public class ItemResponseDto {
         this.imageUrl = imageUrl;
     }
 
-    public String getContentsUrl() {
-        return contentsUrl;
-    }
-
-    public void setContentsUrl(String contentsUrl) {
-        this.contentsUrl = contentsUrl;
-    }
 
     public CType getCtype() {
         return ctype;

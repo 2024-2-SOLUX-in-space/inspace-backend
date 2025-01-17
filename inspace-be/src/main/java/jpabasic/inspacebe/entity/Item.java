@@ -1,10 +1,11 @@
 package jpabasic.inspacebe.entity;
 
 import jakarta.persistence.*;
-import jpabasic.inspacebe.dto.item.ArchiveRequestDto;
+import jpabasic.inspacebe.entity.CType;
+import jpabasic.inspacebe.entity.ImageItem;
+import jpabasic.inspacebe.entity.MusicItem;
+import jpabasic.inspacebe.entity.YoutubeItem;
 import lombok.*;
-
-import java.util.List;
 
 @Entity
 @Table(name = "item")
@@ -17,11 +18,12 @@ public class Item {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "item_id",length=10)
+    @Column(name = "item_id", nullable = false)
     private String itemId;
 
-    @Column(name = "title")
+    @Column(name = "title", length = 10)
     private String title;
+
 
     @Enumerated(EnumType.STRING)
     @Column(name = "ctype")
@@ -62,9 +64,10 @@ public class Item {
     @JoinColumn(name = "space_id")
     private Space space;
 
-//    @ManyToOne
-//    @JoinColumn(name = "user_id", referencedColumnName = "user_id") // 유저와의 연결   선택적
-//    private User user;
+    @ManyToOne
+    @JoinColumn(name = "uid", referencedColumnName = "user_id", nullable = true)
+    private User user;
+
 
     @OneToOne(mappedBy = "item", cascade = CascadeType.ALL)
     private YoutubeItem youTubeItem;
@@ -80,6 +83,52 @@ public class Item {
     private Page page;  // Page와의 관계를 설정하는 필드
 
 
+    public CType getCtype() {
+        return ctype;
+    }
+
+    public Item(String title, CType ctype, String imageUrl, Boolean isUploaded, Space space) {
+        this.title = title;
+        this.ctype = ctype;
+        this.imageUrl = imageUrl;
+        this.space = space;
+    }
+
+    // spaceId 관련 메서드
+    public void setSpaceId(Integer spaceId) {
+        if (this.space == null) {
+            this.space = new Space();
+        }
+        this.space.setSpaceId(spaceId);
+    }
+
+    public Integer getSpaceId() {
+        return this.space != null ? this.space.getSpaceId() : null;
+    }
+
+    // pageId 관련 메서드
+    public void setPageId(Integer pageId) {
+        if (this.page == null) {
+            this.page = new Page();
+        }
+        this.page.setPageId(pageId);
+    }
+
+    public Integer getPageId() {
+        return this.page != null ? this.page.getPageId() : null;
+    }
+
+    // userId (uid) 관련 메서드
+    public void setUid(Integer uid) {
+        if (this.user == null) {
+            this.user = new User();
+        }
+        this.user.setUserId(uid);
+    }
+
+    public Integer getUid() {
+        return this.user != null ? this.user.getUserId() : null;
+    }
 
 
 

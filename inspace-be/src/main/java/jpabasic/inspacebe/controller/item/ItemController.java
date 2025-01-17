@@ -4,8 +4,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import jpabasic.inspacebe.converter.ResponseMessage;
 import jpabasic.inspacebe.dto.item.ArchiveRequestDto;
 import jpabasic.inspacebe.dto.item.ItemRequestDto;
+
+import jpabasic.inspacebe.dto.SpaceDetailResponseDto;
 import jpabasic.inspacebe.dto.item.ItemResponseDto;
-import jpabasic.inspacebe.entity.Item;
+import jpabasic.inspacebe.service.SpaceService;
 import jpabasic.inspacebe.service.item.ItemService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,27 +16,29 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/items")
+@RequestMapping("/api")
 public class ItemController {
 
     private final ItemService itemService;
+    private final SpaceService spaceService;
 
-    public ItemController(ItemService itemService) {
+    public ItemController(ItemService itemService, SpaceService spaceService) {
         this.itemService = itemService;
+        this.spaceService = spaceService;
     }
 
-    // 아이템 등록 (랜덤 ID 생성)
-    @PostMapping("/register")
-    public ResponseEntity<Item> registerItem(@RequestBody ItemRequestDto itemRequestDto) {
-        Item item = itemService.registerItem(itemRequestDto);
-        return ResponseEntity.ok(item);
+
+    @GetMapping("/items/{itemId}")
+    public ResponseEntity<ItemResponseDto> getItemDetails(@PathVariable("itemId") String itemId) {
+        ItemResponseDto response = itemService.getItemDetails(itemId);
+        return ResponseEntity.ok(response);
     }
 
-    // 아이템 상세 조회
-    @GetMapping("/{itemId}")
-    public ResponseEntity<ItemResponseDto> getItemDetails(@PathVariable String itemId) {
-        ItemResponseDto itemResponseDto = itemService.getItemDetails(itemId);
-        return ResponseEntity.ok(itemResponseDto);
+
+    @GetMapping("/items/space/{spaceId}")
+    public ResponseEntity<SpaceDetailResponseDto> getSpaceDetails(@PathVariable("spaceId") int spaceId) {
+        SpaceDetailResponseDto response = itemService.getSpaceDetails(spaceId);
+        return ResponseEntity.ok(response);
     }
 
 
@@ -70,6 +74,7 @@ public class ItemController {
         }
         return items;
     }
+
 
 
 }
