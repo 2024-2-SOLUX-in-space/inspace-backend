@@ -29,9 +29,11 @@ public class Item {
     @Column(name = "ctype")
     private CType ctype;
 
+    //클라우드에 저장된 경로.
     @Column(name = "image_url", columnDefinition = "TEXT")
     private String imageUrl;
 
+    //해당 아이템의 상세 정보 //youtube의 경우 해당 경로.
     @Column(name = "contents_url", columnDefinition = "TEXT")
     private String contentsUrl;
 

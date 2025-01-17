@@ -7,13 +7,19 @@ import jpabasic.inspacebe.dto.item.ItemRequestDto;
 
 import jpabasic.inspacebe.dto.SpaceDetailResponseDto;
 import jpabasic.inspacebe.dto.item.ItemResponseDto;
+import jpabasic.inspacebe.dto.item.UserImageDto;
 import jpabasic.inspacebe.service.SpaceService;
 import jpabasic.inspacebe.service.item.ItemService;
+import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
@@ -59,6 +65,35 @@ public class ItemController {
 
 
     //유저가 직접 올리는 이미지 저장 //POST
+    //유저가 정하는 제목과 file -> dto로
+
+    @PostMapping(value = "/image", consumes = "multipart/form-data", produces = "application/json")
+    @Operation(summary = "유저가 직접 올리는 이미지 저장")
+    public ResponseEntity<Map<String, Object>> uploadImage(@RequestParam("file") MultipartFile file,
+                                                           @RequestParam("spaceId") Integer spaceId,
+                                                           @RequestParam("title") String title) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            if (file.isEmpty()) {
+                response.put("error", "파일이 비어있습니다.");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            // 파일 업로드 및 DB 저장 처리
+            String fileUrl = itemService.uploadImageAndSaveTodb(file, spaceId, title);
+
+            // 성공 응답
+            response.put("message", "이미지를 성공적으로 업로드했어요.");
+            response.put("fileUrl", fileUrl);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.put("error", "알 수 없는 오류가 발생했습니다.");
+            return ResponseEntity.status(500).body(response);
+        }
+    }
+
+
 
 
 

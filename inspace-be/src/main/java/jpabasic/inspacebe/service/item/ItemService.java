@@ -5,20 +5,20 @@ import jpabasic.inspacebe.dto.SpaceDetailResponseDto;
 import jpabasic.inspacebe.dto.item.ArchiveRequestDto;
 import jpabasic.inspacebe.dto.item.ItemRequestDto;
 import jpabasic.inspacebe.dto.item.ItemResponseDto;
+import jpabasic.inspacebe.dto.item.UserImageDto;
 import jpabasic.inspacebe.dto.page.PageDto;
-import jpabasic.inspacebe.entity.Item;
+import jpabasic.inspacebe.entity.*;
 import jpabasic.inspacebe.entity.Space;
-import jpabasic.inspacebe.entity.Page;
-import jpabasic.inspacebe.entity.Space;
-import jpabasic.inspacebe.entity.User;
 import jpabasic.inspacebe.repository.ItemRepository;
 import jpabasic.inspacebe.repository.PageRepository;
 import jpabasic.inspacebe.repository.SpaceRepository;
 import jpabasic.inspacebe.repository.UserRepository;
+import jpabasic.inspacebe.service.StorageService;
 import org.springframework.http.ResponseEntity;
 import jpabasic.inspacebe.repository.SpaceRepository;
 import jpabasic.inspacebe.service.search.SearchService;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
 import java.util.ArrayList;
@@ -33,11 +33,13 @@ public class ItemService {
     private final ItemRepository itemRepository;
     private final SpaceRepository spaceRepository;
     private final SearchService searchService;
+    private final StorageService storageService;
 
-    public ItemService(ItemRepository itemRepository, SearchService searchService, SpaceRepository spaceRepository) {
+    public ItemService(ItemRepository itemRepository, SearchService searchService, SpaceRepository spaceRepository,StorageService storageService) {
         this.itemRepository = itemRepository;
         this.searchService = searchService;
         this.spaceRepository = spaceRepository;
+        this.storageService = storageService;
     }
 
 
@@ -107,6 +109,40 @@ public class ItemService {
         // Space 데이터를 DTO로 변환하여 반환
         return SpaceDetailResponseDto.fromEntity(space);
     }
+
+    //유저의 사진을 클라우드 스토리지에 업로드 -> 클라우드 저장 경로를 db에 저장
+    public String uploadImageAndSaveTodb(MultipartFile file, Integer spaceId,String title){
+
+
+
+        Space space=spaceRepository.findById(spaceId)
+                .orElseThrow(() -> new IllegalArgumentException("Space not found"));
+
+        /// 중복된 파일 이름 방지
+        if(isTitleDuplicated(title)){
+            throw new IllegalArgumentException(("이미 존재하는 이미지명입니다. 다른 이름으로 설정해보세요."));
+        }
+
+        /// Firebase에 파일 업로드
+        String fileUrl=storageService.uploadImage(file,title);
+
+        /// 데이터베이스에 경로 저장
+        Item item=new Item();
+        item.setTitle(title);
+        item.setIsUploaded(true); //유저가 직접 올린 이미지=true
+        item.setImageUrl(fileUrl);
+        item.setSpace(space);
+        item.setCtype(CType.IMAGE);
+        itemRepository.save(item);
+
+        return fileUrl;
+
+    }
+
+    private boolean isTitleDuplicated(String title){
+        return itemRepository.findByTitle(title).isPresent();
+    }
+
 
 
 }
