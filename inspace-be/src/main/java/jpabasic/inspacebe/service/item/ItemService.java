@@ -91,9 +91,14 @@ public class ItemService {
 
     //저장소 조회(카테고리별 아이템 전체 조회)
     @Transactional
-    public ResponseEntity<List<ItemResponseDto>> getItemsBySpace (Integer spaceId) {
+    public ResponseEntity<List<ItemResponseDto>> getItemsBySpace (Integer spaceId,String category) {
         Space space = spaceRepository.findById(spaceId)
                 .orElseThrow(() -> new IllegalArgumentException("Space not found"));
+
+        //필터링  해야한다.
+        if(category.equals("userImage")){
+            space.getItems().stream();
+        }
         List<Item> items=space.getItems();
         List<ItemResponseDto> dtos=PageDto.getItemList(items);
         return ResponseEntity.ok(dtos);
@@ -118,13 +123,8 @@ public class ItemService {
         Space space=spaceRepository.findById(spaceId)
                 .orElseThrow(() -> new IllegalArgumentException("Space not found"));
 
-        /// 중복된 파일 이름 방지
-        if(isTitleDuplicated(title)){
-            throw new IllegalArgumentException(("이미 존재하는 이미지명입니다. 다른 이름으로 설정해보세요."));
-        }
-
         /// Firebase에 파일 업로드
-        String fileUrl=storageService.uploadImage(file,title);
+        String fileUrl=storageService.uploadImage(file);
 
         /// 데이터베이스에 경로 저장
         Item item=new Item();
@@ -137,10 +137,6 @@ public class ItemService {
 
         return fileUrl;
 
-    }
-
-    private boolean isTitleDuplicated(String title){
-        return itemRepository.findByTitle(title).isPresent();
     }
 
 

@@ -47,29 +47,7 @@ public class PageService {
 
     }
 
-//    //페이지 조회
-//    public PageDto getPage(Integer spaceId, Integer pageNumber) {
-//        Space space = spaceRepository.findById(spaceId)
-//                .orElseThrow(() -> new IllegalArgumentException("Space not found"));
-//
-//        List<Page> pages = space.getPages();
-//        Page targetPage = null;
-//        List<ItemResponseDto> targetItems=null;
-//        for (Page target : pages) {
-//            if (target.getPageNumber() == pageNumber) {
-//                targetPage = target;
-//                List<Item> itemList=targetPage.getItems();
-//                List<ItemResponseDto> targetItems=PageDto.getItemList(itemList);
-//            }
-//        }
-//        PageDto dto = null;
-//        dto.setPageNumber(pageNumber);
-//        dto.setItems(targetItems);
-//        return targetItems;
-//
-//    }
-    
-    
+
     // 페이지 조회
     public List<ArchiveRequestDto> getPage(Integer spaceId, Integer pageNumber) {
         // Space 조회

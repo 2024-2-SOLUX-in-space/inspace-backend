@@ -66,7 +66,6 @@ public class ItemController {
 
     //유저가 직접 올리는 이미지 저장 //POST
     //유저가 정하는 제목과 file -> dto로
-
     @PostMapping(value = "/image", consumes = "multipart/form-data", produces = "application/json")
     @Operation(summary = "유저가 직접 올리는 이미지 저장")
     public ResponseEntity<Map<String, Object>> uploadImage(@RequestParam("file") MultipartFile file,
@@ -98,12 +97,13 @@ public class ItemController {
 
 
     //저장소 조회(카테고리별 아이템 전체 조회) //아직 카테고리별 처리 안함.
-    @GetMapping("/cateegory/space/{spaceId}")
+    //category -> userImage, image, youtube,music
+    @GetMapping("/category/space/{spaceId}")
     @Operation(summary="저장소 조회(카테고리별 아이템 전체 조회)")
-    public ResponseEntity<?> getItemsBySpace(@PathVariable Integer spaceId) {
+    public ResponseEntity<?> getItemsBySpace(@PathVariable Integer spaceId,@RequestParam("category") String category) {
         ResponseEntity<List<ItemResponseDto>> items;
         try {
-            items = itemService.getItemsBySpace(spaceId);
+            items = itemService.getItemsBySpace(spaceId,category);
         } catch (Exception e) {
             String message = "아이템 조회에 실패했어요.";
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseMessage(message));

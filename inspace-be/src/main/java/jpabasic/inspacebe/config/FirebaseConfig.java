@@ -10,6 +10,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+/// https://console.firebase.google.com/project/inspace-d2239/storage/inspace-d2239.firebasestorage.app/files?hl=ko
 @Configuration
 public class FirebaseConfig {
     @PostConstruct
@@ -19,7 +20,7 @@ public class FirebaseConfig {
 
         FirebaseOptions options = new FirebaseOptions.Builder()
                 .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                .setStorageBucket("inspace-d2239.appspot.com") // Cloud Storage 버킷 URL
+                .setStorageBucket("inspace-d2239.firebasestorage.app") // Cloud Storage 버킷 URL
                 .build();
 
         FirebaseApp.initializeApp(options);
