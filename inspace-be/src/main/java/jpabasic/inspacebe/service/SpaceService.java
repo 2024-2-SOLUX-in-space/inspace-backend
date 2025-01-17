@@ -16,10 +16,12 @@ public class SpaceService {
 
     private final SpaceRepository spaceRepository;
     private final UserRepository userRepository;
+    private final PageService pageService;
 
-    public SpaceService(SpaceRepository spaceRepository, UserRepository userRepository) {
+    public SpaceService(SpaceRepository spaceRepository, UserRepository userRepository, PageService pageService) {
         this.spaceRepository = spaceRepository;
         this.userRepository = userRepository;
+        this.pageService = pageService;
     }
 
     //새로운 공간 생성
@@ -50,6 +52,9 @@ public class SpaceService {
             Space space = Space.toEntity(dto);
             space.setUser(user);
             spaceRepository.save(space);
+
+            Integer pageId=space.getSpaceId();
+            pageService.createPages(pageId,userId);
 
             return SpaceDto.toDto(space);
 

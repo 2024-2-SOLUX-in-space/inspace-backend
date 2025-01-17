@@ -1,18 +1,33 @@
 package jpabasic.inspacebe.service.item;
 
-
+import jakarta.transaction.Transactional;
 import jpabasic.inspacebe.dto.SpaceDetailResponseDto;
+import jpabasic.inspacebe.dto.item.ArchiveRequestDto;
+import jpabasic.inspacebe.dto.item.ItemRequestDto;
 import jpabasic.inspacebe.dto.item.ItemResponseDto;
+import jpabasic.inspacebe.dto.page.PageDto;
 import jpabasic.inspacebe.entity.Item;
 import jpabasic.inspacebe.entity.Space;
+import jpabasic.inspacebe.entity.Page;
+import jpabasic.inspacebe.entity.Space;
+import jpabasic.inspacebe.entity.User;
 import jpabasic.inspacebe.repository.ItemRepository;
+import jpabasic.inspacebe.repository.PageRepository;
+import jpabasic.inspacebe.repository.SpaceRepository;
+import jpabasic.inspacebe.repository.UserRepository;
+import org.springframework.http.ResponseEntity;
 import jpabasic.inspacebe.repository.SpaceRepository;
 import jpabasic.inspacebe.service.search.SearchService;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
+
 public class ItemService {
 
     private final ItemRepository itemRepository;
@@ -24,6 +39,8 @@ public class ItemService {
         this.searchService = searchService;
         this.spaceRepository = spaceRepository;
     }
+
+
 
     public ItemResponseDto getItemDetails(String itemId) {
         // 캐시에서 데이터 검색
@@ -37,16 +54,16 @@ public class ItemService {
                 });
     }
 
+
     private ItemResponseDto convertCacheToDto(Map<String, Object> cacheData) {
         ItemResponseDto dto = new ItemResponseDto();
         dto.setItemId((String) cacheData.get("itemId"));
         dto.setTitle((String) cacheData.get("title"));
         dto.setImageUrl((String) cacheData.get("url"));
-        dto.setIsUploaded((Boolean) cacheData.get("isUploaded"));
+//        dto.setIsUploaded((Boolean) cacheData.get("isUploaded"));
         dto.setUserName("Crawled Source");
         return dto;
     }
-
     private ItemResponseDto convertToDto(Item item) {
         ItemResponseDto dto = new ItemResponseDto();
         dto.setItemId(item.getItemId());
@@ -63,6 +80,24 @@ public class ItemService {
 
         return dto;
     }
+
+    //아이템 저장소에서 삭제
+    @Transactional
+    public void deleteItemOnSpace(String itemId){
+        itemRepository.deleteById(itemId);
+    }
+
+    //저장소 조회(카테고리별 아이템 전체 조회)
+    @Transactional
+    public ResponseEntity<List<ItemResponseDto>> getItemsBySpace (Integer spaceId) {
+        Space space = spaceRepository.findById(spaceId)
+                .orElseThrow(() -> new IllegalArgumentException("Space not found"));
+        List<Item> items=space.getItems();
+        List<ItemResponseDto> dtos=PageDto.getItemList(items);
+        return ResponseEntity.ok(dtos);
+    }
+
+
 
     public SpaceDetailResponseDto getSpaceDetails(int spaceId) {
         // spaceId로 Space 조회

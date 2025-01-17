@@ -1,17 +1,38 @@
 package jpabasic.inspacebe.dto.item;
 
 import jpabasic.inspacebe.entity.CType;
+import jpabasic.inspacebe.entity.Item;
+import lombok.*;
 
+@Builder
+@Getter
+@Setter
+@AllArgsConstructor
 public class ItemResponseDto {
     private String itemId;
     private String title;
     private String imageUrl;
-    private Boolean isUploaded;
     private Integer userId;
     private String userName;
     private CType ctype;
+    private String contentsUrl;
+    private Boolean isUploaded;
+//    private Integer spaceId;
+//    private Integer uid;
 
-    // Getters and Setters
+    public ItemResponseDto() {
+    }
+
+    public ItemResponseDto(String itemId, String title, String imageUrl, String contentsUrl, CType ctype, Integer spaceId, Integer uid) {
+        this.itemId = itemId;
+        this.title = title;
+        this.imageUrl = imageUrl;
+        this.contentsUrl = contentsUrl;
+        this.ctype = ctype;
+//        this.spaceId = spaceId;
+//        this.uid = uid;
+    }
+
     public String getItemId() {
         return itemId;
     }
@@ -36,29 +57,6 @@ public class ItemResponseDto {
         this.imageUrl = imageUrl;
     }
 
-    public Boolean getIsUploaded() {
-        return isUploaded;
-    }
-
-    public void setIsUploaded(Boolean isUploaded) {
-        this.isUploaded = isUploaded;
-    }
-
-    public Integer getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Integer userId) {
-        this.userId = userId;
-    }
-
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
 
     public CType getCtype() {
         return ctype;
@@ -68,5 +66,44 @@ public class ItemResponseDto {
         this.ctype = ctype;
     }
 
+//    public Integer getSpaceId() {
+//        return spaceId;
+//    }
+//
+//    public void setSpaceId(Integer spaceId) {
+//        this.spaceId = spaceId;
+//    }
+//
+//    public Integer getUid() {
+//        return uid;
+//    }
+//
+//    public void setUid(Integer uid) {
+//        this.uid = uid;
+//    }
 
+    @Override
+    public String toString() {
+        return "ItemResponseDto{" +
+                "itemId='" + itemId + '\'' +
+                ", title='" + title + '\'' +
+                ", imageUrl='" + imageUrl + '\'' +
+                ", contentsUrl='" + contentsUrl + '\'' +
+                ", ctype=" + ctype +
+//                ", spaceId=" + spaceId +
+//                ", uid=" + uid +
+                '}';
+    }
+
+    //Entity->toDto
+    public static ItemResponseDto toDto(Item item) {
+        return ItemResponseDto.builder()
+                .itemId(item.getItemId())
+                .title(item.getTitle())
+                .imageUrl(item.getImageUrl())
+                .contentsUrl(item.getContentsUrl())
+                .ctype(item.getCtype())
+                .build();
+
+    }
 }
