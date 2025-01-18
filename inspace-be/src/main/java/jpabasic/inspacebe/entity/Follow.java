@@ -1,12 +1,16 @@
 package jpabasic.inspacebe.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.NotEmpty;
+import lombok.*;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-@NoArgsConstructor
+@Builder
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 @Entity
-@Data
+@EntityListeners(AuditingEntityListener.class)
 public class Follow {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -14,14 +18,14 @@ public class Follow {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "follower_id")
+    @JoinColumn(name = "following_id", nullable = false)
     private User following; // 팔로우하는 사람의 아이디
 
     @ManyToOne
-    @JoinColumn(name = "following_id")
+    @JoinColumn(name = "followed_id", nullable = false)
     private User followed; // 팔로우 당하는 사람의 아이디
 
-    public Follow(User following, User followed) {
+    public Follow(User followed, User following) {
         this.following = following;
         this.followed = followed;
     }
