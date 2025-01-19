@@ -20,7 +20,6 @@ public class SpaceDto {
     private Boolean isPrimary=false;
     private Boolean isPublic=false;
 
-    @CurrentTimestamp
     private LocalDateTime createdAt;
 
     //Entity ->DTO

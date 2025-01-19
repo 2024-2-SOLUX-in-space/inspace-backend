@@ -3,8 +3,10 @@ package jpabasic.inspacebe.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jpabasic.inspacebe.config.CurrentUser;
 import jpabasic.inspacebe.converter.ResponseMessage;
 import jpabasic.inspacebe.entity.Space;
+import jpabasic.inspacebe.entity.User;
 import jpabasic.inspacebe.service.PageService;
 import jpabasic.inspacebe.service.SpaceService;
 import jpabasic.inspacebe.dto.SpaceDto;
@@ -30,12 +32,13 @@ public class SpaceController {
     }
 
 
-    @PostMapping("/spaces/{user_id}")
+    @PostMapping("/spaces/{userId}")
     @Operation(summary="공간 신규 등록")
+
     public ResponseEntity<?> createSpace(@Valid @RequestBody SpaceDto spaceDto, @PathVariable("user_id") Integer user_id) {
         SpaceDto dto;
         try {
-            dto = spaceService.createSpace(spaceDto, user_id);
+            dto = spaceService.createSpace(spaceDto, userId);
         } catch (Exception e) {
             String message = "공간 등록에 실패했어요. 다시 시도해주세요. \n " + e.getMessage();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseMessage(message));
@@ -44,25 +47,25 @@ public class SpaceController {
     }
 
 
-
-    @GetMapping("/spaces/{user_id}")
+    @GetMapping("/spaces")
     @Operation(summary="공간 목록 조회")
-    public ResponseEntity<?> getSpaces(@PathVariable Integer user_id) {
+    public ResponseEntity<?> getSpaces(@CurrentUser User space) {
+
         List<SpaceDto> spaces;
         try {
-            spaces = spaceService.getSpaces(user_id);
+            spaces = spaceService.getSpaces(space);
         } catch (Exception e) {
             String message = "해당 사용자의 공간 목록을 찾을 수 없습니다.";
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseMessage(message));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseMessage(message));
         }
-        return new ResponseEntity<>(spaces, HttpStatus.OK);
+        return ResponseEntity.ok(spaces);  // ResponseEntity<List<SpaceDto>> 로 변경
     }
 
 
     //우선 대표 공간만 보이도록?
     @GetMapping("/space/{space_id}")
     @Operation(summary="특정 공간 조회")
-    public ResponseEntity<?> getSpace(@PathVariable Integer space_id){
+    public ResponseEntity<?> getSpace(@PathVariable("space_id") Integer space_id){
         SpaceDto space=spaceService.getSpace(space_id);
 
         if(space==null){
@@ -76,7 +79,7 @@ public class SpaceController {
 
     @PutMapping("/spaces/{space_id}") //user_id통해 본인만 설정 변경할 수 있도록.
     @Operation(summary="공간 설정 변경")
-    public ResponseEntity<?> updateSpace(@PathVariable Integer space_id,@Valid @RequestBody SpaceDto spaceDto) {
+    public ResponseEntity<?> updateSpace(@PathVariable("space_id") Integer space_id,@Valid @RequestBody SpaceDto spaceDto) {
         SpaceDto space;
         try {
             space = spaceService.updateSpace(space_id, spaceDto).getBody();
@@ -92,7 +95,7 @@ public class SpaceController {
 
     @DeleteMapping("/spaces/{space_id}")
     @Operation(summary="공간 삭제")
-    public ResponseEntity<?> deleteSpace(@PathVariable int space_id){
+    public ResponseEntity<?> deleteSpace(@PathVariable("space_id") Integer space_id){
         try{
             spaceService.deleteSpace(space_id);
         }catch(Exception e){

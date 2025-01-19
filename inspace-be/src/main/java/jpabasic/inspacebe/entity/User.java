@@ -27,7 +27,7 @@ public class User {
     @Column(name = "password", length = 255)
     private String password;
 
-    @OneToMany(mappedBy = "user", fetch=FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user", fetch=FetchType.LAZY)
     private List<Space> spaces;
 
     /*@OneToMany(mappedBy = "user", fetch=FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
@@ -36,6 +36,7 @@ public class User {
     // "나를" 팔로우하는 사람들
     @OneToMany(mappedBy = "followed", fetch = FetchType.LAZY)
     private List<Follow> followers;
+
 
     // "내가" 팔로잉하는 사람들
     @OneToMany(mappedBy = "following", fetch = FetchType.LAZY)
@@ -55,4 +56,5 @@ public class User {
                 ", email='" + email + '\'' +
                 '}';
     }
+
 }

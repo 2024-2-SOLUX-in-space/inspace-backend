@@ -7,6 +7,8 @@ import jpabasic.inspacebe.entity.MusicItem;
 import jpabasic.inspacebe.entity.YoutubeItem;
 import lombok.*;
 
+import java.util.UUID;
+
 @Entity
 @Table(name = "item")
 @Getter
@@ -16,10 +18,10 @@ import lombok.*;
 @AllArgsConstructor
 public class Item {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @Id //민서 수정
+//    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "item_id", nullable = false)
-    private String itemId;
+    private String itemId=UUID.randomUUID().toString();
 
     @Column(name = "title", length = 10)
     private String title;
@@ -29,9 +31,11 @@ public class Item {
     @Column(name = "ctype")
     private CType ctype;
 
+    //클라우드에 저장된 경로.
     @Column(name = "image_url", columnDefinition = "TEXT")
     private String imageUrl;
 
+    //해당 아이템의 상세 정보 //youtube의 경우 해당 경로.
     @Column(name = "contents_url", columnDefinition = "TEXT")
     private String contentsUrl;
 
@@ -130,9 +134,6 @@ public class Item {
     public Integer getUid() {
         return this.user != null ? this.user.getUserId() : null;
     }
-
-
-
 
 
 }
