@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/follow")
+@RequestMapping("/api/follow")
 @RequiredArgsConstructor
 @Tag(name="팔로우 관련 API")
 public class FollowController {
