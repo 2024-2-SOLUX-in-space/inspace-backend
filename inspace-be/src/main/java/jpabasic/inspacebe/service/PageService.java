@@ -52,7 +52,7 @@ public class PageService {
 
     // 페이지 조회
     @Transactional
-    public List<ArchiveRequestDto> getPage(Integer spaceId, Integer pageNumber) {
+    public List<ArchiveRequestDto> getPage(Integer spaceId, int pageNumber) {
         // Space 조회
         Space space = spaceRepository.findById(spaceId)
                 .orElseThrow(() -> new IllegalArgumentException("Space not found"));

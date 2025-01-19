@@ -28,7 +28,7 @@ public class PageController {
     //페이지 조회 //완료
   @GetMapping("")
     @Operation(summary="페이지 조회")
-    public ResponseEntity<?> getPage(@RequestParam("space_id") Integer space_id,@RequestParam("pageNum") Integer pageNum) {
+    public ResponseEntity<?> getPage(@RequestParam("space_id") Integer space_id,@RequestParam("pageNum") int pageNum) {
         try{
             List<ArchiveRequestDto> items=pageService.getPage(pageNum,space_id);
 

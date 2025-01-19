@@ -57,7 +57,7 @@ public class Space {
     @OneToMany(mappedBy = "space", cascade = CascadeType.ALL, orphanRemoval = true) //민서 수정
     private List<Page> pages;
 
-    @OneToMany(mappedBy="space")
+    @OneToMany(mappedBy="space",cascade=CascadeType.ALL, orphanRemoval = true)
     @JsonIgnoreProperties({"space"})
     private List<Item> items;
 
