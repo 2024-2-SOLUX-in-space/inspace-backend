@@ -1,15 +1,24 @@
 package jpabasic.inspacebe.dto.item;
 
 import jpabasic.inspacebe.entity.CType;
+import jpabasic.inspacebe.entity.Item;
+import lombok.*;
 
+@Builder
+@Getter
+@Setter
+@AllArgsConstructor
 public class ItemResponseDto {
     private String itemId;
     private String title;
     private String imageUrl;
-    private String contentsUrl;
+    private Integer userId;
+    private String userName;
     private CType ctype;
-    private Integer spaceId;
-    private Integer uid;
+    private String contentsUrl;
+    private Boolean isUploaded;
+//    private Integer spaceId;
+//    private Integer uid;
 
     public ItemResponseDto() {
     }
@@ -20,8 +29,8 @@ public class ItemResponseDto {
         this.imageUrl = imageUrl;
         this.contentsUrl = contentsUrl;
         this.ctype = ctype;
-        this.spaceId = spaceId;
-        this.uid = uid;
+//        this.spaceId = spaceId;
+//        this.uid = uid;
     }
 
     public String getItemId() {
@@ -48,13 +57,6 @@ public class ItemResponseDto {
         this.imageUrl = imageUrl;
     }
 
-    public String getContentsUrl() {
-        return contentsUrl;
-    }
-
-    public void setContentsUrl(String contentsUrl) {
-        this.contentsUrl = contentsUrl;
-    }
 
     public CType getCtype() {
         return ctype;
@@ -64,21 +66,21 @@ public class ItemResponseDto {
         this.ctype = ctype;
     }
 
-    public Integer getSpaceId() {
-        return spaceId;
-    }
-
-    public void setSpaceId(Integer spaceId) {
-        this.spaceId = spaceId;
-    }
-
-    public Integer getUid() {
-        return uid;
-    }
-
-    public void setUid(Integer uid) {
-        this.uid = uid;
-    }
+//    public Integer getSpaceId() {
+//        return spaceId;
+//    }
+//
+//    public void setSpaceId(Integer spaceId) {
+//        this.spaceId = spaceId;
+//    }
+//
+//    public Integer getUid() {
+//        return uid;
+//    }
+//
+//    public void setUid(Integer uid) {
+//        this.uid = uid;
+//    }
 
     @Override
     public String toString() {
@@ -88,8 +90,20 @@ public class ItemResponseDto {
                 ", imageUrl='" + imageUrl + '\'' +
                 ", contentsUrl='" + contentsUrl + '\'' +
                 ", ctype=" + ctype +
-                ", spaceId=" + spaceId +
-                ", uid=" + uid +
+//                ", spaceId=" + spaceId +
+//                ", uid=" + uid +
                 '}';
+    }
+
+    //Entity->toDto
+    public static ItemResponseDto toDto(Item item) {
+        return ItemResponseDto.builder()
+                .itemId(item.getItemId())
+                .title(item.getTitle())
+                .imageUrl(item.getImageUrl())
+                .contentsUrl(item.getContentsUrl())
+                .ctype(item.getCtype())
+                .build();
+
     }
 }

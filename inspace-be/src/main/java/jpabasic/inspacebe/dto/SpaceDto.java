@@ -1,6 +1,7 @@
 package jpabasic.inspacebe.dto;
 
 import jpabasic.inspacebe.entity.Space;
+import jpabasic.inspacebe.entity.User;
 import lombok.*;
 import org.hibernate.annotations.CurrentTimestamp;
 
@@ -13,7 +14,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SpaceDto {
-    //user_id 추가해야함.
+//    private User user;
     private String sname;
     private int sthumb;
     private Boolean isPrimary=false;
