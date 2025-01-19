@@ -43,9 +43,9 @@ public class NotificationController {
     }
 
     @Operation(summary = "읽음 처리", description = "특정 알림을 읽음 처리합니다.")
-    @PatchMapping("/read/{id}")
-    public ResponseEntity<String> markNotificationAsRead(@PathVariable Long id) {
-        notificationService.markAsRead(id);
+    @PatchMapping("/read/{notification_id}")
+    public ResponseEntity<String> markNotificationAsRead(@PathVariable("notification_id") Long notificationId) {
+        notificationService.markAsRead(notificationId);
         return ResponseEntity.ok("읽음 처리"); // 성공 시 204 No Content 반환
     }
 }
