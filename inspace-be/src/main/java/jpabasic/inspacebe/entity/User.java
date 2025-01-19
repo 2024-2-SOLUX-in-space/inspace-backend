@@ -27,7 +27,7 @@ public class User {
     @Column(name = "password", length = 255)
     private String password;
 
-    @OneToMany(mappedBy = "user", fetch=FetchType.LAZY)
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
     private List<Space> spaces;
 
     /*@OneToMany(mappedBy = "user", fetch=FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)

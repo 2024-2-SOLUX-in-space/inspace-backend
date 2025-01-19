@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class SpaceDto {
 //    private User user;
+    private Integer spaceId;
     private String sname;
     private int sthumb;
     private Boolean isPrimary=false;
@@ -25,6 +26,7 @@ public class SpaceDto {
     //Entity ->DTO
     public static SpaceDto toDto(Space space) {
         return SpaceDto.builder()
+                .spaceId(space.getSpaceId())
                 .sname(space.getSname())
                 .sthumb(space.getSthumb())
                 .isPrimary(space.getIsPrimary())

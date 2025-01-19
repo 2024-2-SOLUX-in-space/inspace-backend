@@ -29,9 +29,9 @@ public class SpaceService {
 
     //새로운 공간 생성
     @Transactional
-    public SpaceDto createSpace(SpaceDto dto, Integer userId) {
+    public SpaceDto createSpace(SpaceDto dto, User user) {
 
-        User user=userRepository.findById(userId).get();
+//        User user=userRepository.findById(userId).get();
 
         //유저의 첫 공간 일 때, 해당 공간을 대표 공간으로 설정.\
         //유저가 직접 공간을 '대표공간'이라고 설정 -> 원래 있던 대표 공간을 false로 바꾸기
