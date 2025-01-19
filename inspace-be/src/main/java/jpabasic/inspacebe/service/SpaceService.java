@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
+@Transactional
 @Service
 public class SpaceService {
 

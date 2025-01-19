@@ -37,10 +37,10 @@ public class User {
     @OneToMany(mappedBy = "followed", fetch = FetchType.LAZY)
     private List<Follow> followers;
 
+
     // "내가" 팔로잉하는 사람들
     @OneToMany(mappedBy = "following", fetch = FetchType.LAZY)
     private List<Follow> followings;
-
 
     public User(String name, String email, String password) {
         this.name = name;
@@ -56,4 +56,5 @@ public class User {
                 ", email='" + email + '\'' +
                 '}';
     }
+
 }

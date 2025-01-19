@@ -41,8 +41,4 @@ out/
 #Gradle
 .gradle
 /build/
-#
-##firebase Admin SDK key
-#inspzsrc/main/resources/inspace-d2239-firebase-adminsdk-fbsvc-7962a1caf6.json
-
 

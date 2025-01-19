@@ -1,3 +1,4 @@
+
 package jpabasic.inspacebe.config;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

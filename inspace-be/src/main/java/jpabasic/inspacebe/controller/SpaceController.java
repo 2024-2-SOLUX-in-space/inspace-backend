@@ -34,12 +34,13 @@ public class SpaceController {
 
     @PostMapping("/spaces/{userId}")
     @Operation(summary="공간 신규 등록")
-    public ResponseEntity<?> createSpace(@Valid @RequestBody SpaceDto spaceDto, @PathVariable("userId") Integer userId) {
+
+    public ResponseEntity<?> createSpace(@Valid @RequestBody SpaceDto spaceDto, @PathVariable("user_id") Integer user_id) {
         SpaceDto dto;
         try {
             dto = spaceService.createSpace(spaceDto, userId);
         } catch (Exception e) {
-            String message = "공간 등록에 실패했어요. 다시 시도해주세요.";
+            String message = "공간 등록에 실패했어요. 다시 시도해주세요. \n " + e.getMessage();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseMessage(message));
         }
         return new ResponseEntity<>(dto, HttpStatus.CREATED);
