@@ -2,12 +2,9 @@ package jpabasic.inspacebe.controller.item;
 
 import io.swagger.v3.oas.annotations.Operation;
 import jpabasic.inspacebe.converter.ResponseMessage;
-import jpabasic.inspacebe.dto.item.ArchiveRequestDto;
-import jpabasic.inspacebe.dto.item.ItemRequestDto;
+import jpabasic.inspacebe.dto.item.*;
 
 import jpabasic.inspacebe.dto.SpaceDetailResponseDto;
-import jpabasic.inspacebe.dto.item.ItemResponseDto;
-import jpabasic.inspacebe.dto.item.UserImageDto;
 import jpabasic.inspacebe.service.SpaceService;
 import jpabasic.inspacebe.service.item.ItemService;
 import org.apache.coyote.Response;
@@ -48,12 +45,13 @@ public class ItemController {
     }
 
 
-    //아이템 저장소에서 삭제 //자식 객체는 삭제되면 안됨. (youtube,image..)
-    @DeleteMapping("/{itemId}")
+    //아이템 저장소에서 삭제
+    @DeleteMapping("/delete/item")
     @Operation(summary="아이템을 저장소에서 삭제")
-    public ResponseEntity<?> deleteItemOnSpace(@PathVariable String itemId) {
+    public ResponseEntity<?> deleteItemOnSpace(@RequestParam("itemId")String itemId) {
         try{
             itemService.deleteItemOnSpace(itemId);
+
         }catch(Exception e){
             String message="해당 아이템을 삭제하는데 실패했어요.";
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseMessage(message));
@@ -100,8 +98,8 @@ public class ItemController {
     //category -> userImage, image, youtube,music
     @GetMapping("/category/space/{spaceId}")
     @Operation(summary="저장소 조회(카테고리별 아이템 전체 조회)")
-    public ResponseEntity<?> getItemsBySpace(@PathVariable Integer spaceId,@RequestParam("category") String category) {
-        ResponseEntity<List<ItemResponseDto>> items;
+    public ResponseEntity<?> getItemsBySpace(@PathVariable("spaceId") Integer spaceId,@RequestParam("category") String category) {
+        ResponseEntity<List<ItemsDto>> items;
         try {
             items = itemService.getItemsBySpace(spaceId,category);
         } catch (Exception e) {

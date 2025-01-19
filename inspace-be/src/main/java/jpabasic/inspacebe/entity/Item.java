@@ -7,6 +7,8 @@ import jpabasic.inspacebe.entity.MusicItem;
 import jpabasic.inspacebe.entity.YoutubeItem;
 import lombok.*;
 
+import java.util.UUID;
+
 @Entity
 @Table(name = "item")
 @Getter
@@ -16,10 +18,10 @@ import lombok.*;
 @AllArgsConstructor
 public class Item {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @Id //민서 수정
+//    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "item_id", nullable = false)
-    private String itemId;
+    private String itemId=UUID.randomUUID().toString();
 
     @Column(name = "title", length = 10)
     private String title;
@@ -132,9 +134,6 @@ public class Item {
     public Integer getUid() {
         return this.user != null ? this.user.getUserId() : null;
     }
-
-
-
 
 
 }
