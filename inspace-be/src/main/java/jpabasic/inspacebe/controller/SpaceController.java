@@ -64,7 +64,7 @@ public class SpaceController {
     //우선 대표 공간만 보이도록?
     @GetMapping("/space/{space_id}")
     @Operation(summary="특정 공간 조회")
-    public ResponseEntity<?> getSpace(@PathVariable Integer space_id){
+    public ResponseEntity<?> getSpace(@PathVariable("space_id") Integer space_id){
         SpaceDto space=spaceService.getSpace(space_id);
 
         if(space==null){

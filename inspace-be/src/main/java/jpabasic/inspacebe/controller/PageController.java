@@ -28,7 +28,7 @@ public class PageController {
     //페이지 조회 //완료
   @GetMapping("")
     @Operation(summary="페이지 조회")
-    public ResponseEntity<?> getPage(@RequestParam Integer space_id,@RequestParam Integer pageNum) {
+    public ResponseEntity<?> getPage(@RequestParam("space_id") Integer space_id,@RequestParam("pageNum") Integer pageNum) {
         try{
             List<ArchiveRequestDto> items=pageService.getPage(pageNum,space_id);
 
@@ -63,7 +63,7 @@ public class PageController {
     //페이지(아카이브)에서 아이템 삭제  //완료
     @DeleteMapping("/{itemId}")
     @Operation(summary="페이지(아카이브)에서 아이템 삭제")
-    public ResponseEntity<?> deleteItemOnPage(@PathVariable String itemId) {
+    public ResponseEntity<?> deleteItemOnPage(@PathVariable("itemId") String itemId) {
         try{
             pageService.deleteItemOnPage(itemId);
         }catch(Exception e){
