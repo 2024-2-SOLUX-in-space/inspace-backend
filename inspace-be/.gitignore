@@ -19,6 +19,7 @@ bin/
 
 ### IntelliJ IDEA ###
 application.properties
+inspace-d2239-firebase-adminsdk-fbsvc-7962a1caf6.json
 .idea
 *.iws
 *.iml
@@ -42,6 +43,6 @@ out/
 /build/
 #
 ##firebase Admin SDK key
-#src/main/resources/inspace-d2239-firebase-adminsdk-fbsvc-7962a1caf6.json
+#inspzsrc/main/resources/inspace-d2239-firebase-adminsdk-fbsvc-7962a1caf6.json
 
 
