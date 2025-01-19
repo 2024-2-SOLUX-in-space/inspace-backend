@@ -1,5 +1,6 @@
 package jpabasic.inspacebe.service;
 
+import jakarta.transaction.Transactional;
 import jpabasic.inspacebe.dto.SpaceDto;
 import jpabasic.inspacebe.entity.Space;
 import jpabasic.inspacebe.entity.User;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Transactional
 @Service
 public class SpaceService {
 

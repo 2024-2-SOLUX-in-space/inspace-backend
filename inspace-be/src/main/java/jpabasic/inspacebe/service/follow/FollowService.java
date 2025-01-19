@@ -1,5 +1,6 @@
 package jpabasic.inspacebe.service.follow;
 
+import jakarta.transaction.Transactional;
 import jpabasic.inspacebe.dto.follow.FollowResponseDto;
 import jpabasic.inspacebe.entity.Follow;
 import jpabasic.inspacebe.entity.User;
@@ -21,6 +22,7 @@ public class FollowService {
     private final UserRepository userRepository;
     private final NotificationService notificationService;
 
+    @Transactional
     public String follow(Integer followedId, User following) {
         User followed = userRepository.findById(followedId)
                 .orElseThrow(() -> new IllegalArgumentException("팔로우할 사용자를 찾을 수 없습니다."));
@@ -37,6 +39,7 @@ public class FollowService {
         return followed.getName() + "님을 팔로우하였습니다.";
     }
 
+    @Transactional
     public String unfollow(Integer followedId, User following) {
         User followed = userRepository.findById(followedId)
                 .orElseThrow(() -> new IllegalArgumentException("언팔로우할 사용자를 찾을 수 없습니다."));
