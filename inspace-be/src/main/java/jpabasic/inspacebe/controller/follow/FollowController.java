@@ -22,17 +22,19 @@ public class FollowController {
     private final FollowService followService;
 
     @Operation(summary = "팔로우하기")
-    @PostMapping(value = "/new/{followedId}")
+    @PostMapping(value = "/new/{followed_id}")
     public ResponseEntity<String> followUser(
-            @Parameter(name = "followedId", description = "팔로우하려는 사람의 ID", required = true, in = ParameterIn.PATH)
-            @PathVariable("followedId") Integer followedId, @CurrentUser User following) {
+            @Parameter(name = "followed_id", description = "팔로우하려는 사람의 ID", required = true, in = ParameterIn.PATH)
+            @PathVariable("followed_id") Integer followedId, @CurrentUser User following) {
         String response = followService.follow(followedId, following);
         return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "팔로우 취소하기")
-    @DeleteMapping(value="/undo/{followedId}")
-    public ResponseEntity<String> unfollowUser(@Parameter(name = "followedId", description = "팔로우 취소하려는 사람의 ID", required = true, in = ParameterIn.PATH) @PathVariable("followedId") Integer followedId, @CurrentUser User following){
+    @DeleteMapping(value="/undo/{followed_id}")
+    public ResponseEntity<String> unfollowUser(
+            @Parameter(name = "followed_id", description = "팔로우 취소하려는 사람의 ID", required = true, in = ParameterIn.PATH)
+            @PathVariable("followed_id") Integer followedId, @CurrentUser User following){
         String response = followService.unfollow(followedId, following);
         return ResponseEntity.ok(response);
     }
