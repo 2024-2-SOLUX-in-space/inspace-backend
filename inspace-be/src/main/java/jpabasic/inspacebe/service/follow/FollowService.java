@@ -5,6 +5,7 @@ import jpabasic.inspacebe.entity.Follow;
 import jpabasic.inspacebe.entity.User;
 import jpabasic.inspacebe.repository.FollowRepository;
 import jpabasic.inspacebe.repository.UserRepository;
+import jpabasic.inspacebe.service.Notification.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
 public class FollowService {
     private final FollowRepository followRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
     public String follow(Integer followedId, User following) {
         User followed = userRepository.findById(followedId)
@@ -27,6 +29,11 @@ public class FollowService {
         }
 
         followRepository.save(new Follow(followed, following));
+
+        // followed에게 알림 생성 및 전송
+        String message = following.getName() + "님이 나를 팔로우합니다.";
+        notificationService.sendFollowNotification(followed, message);
+
         return followed.getName() + "님을 팔로우하였습니다.";
     }
 

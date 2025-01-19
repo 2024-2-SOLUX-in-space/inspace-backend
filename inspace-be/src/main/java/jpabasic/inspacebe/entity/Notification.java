@@ -1,14 +1,16 @@
 package jpabasic.inspacebe.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.Date;
 
-@NoArgsConstructor
 @Entity
-@Data
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 public class Notification {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,11 +19,10 @@ public class Notification {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private User user; // 알림을 수신받는 당사자
+    private User receiver; // 알림을 수신받는 당사자
 
-    @ManyToOne
-    @JoinColumn(name = "trigger_id")
-    private User triggerId;
+    @Column(name = "message", nullable = false)
+    private String message; // 알림 메시지 필드 추가
 
     @Column(name = "created_at")
     private Date createdAt;
