@@ -94,4 +94,16 @@ public class NotificationService {
         unreadNotifications.forEach(notification -> notification.setIsRead(true));
         notificationRepository.saveAll(unreadNotifications);
     }
+    @Transactional
+    public void markAsRead(Long notificationId) {
+        // 1. 알림 조회
+        Notification notification = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 알림을 찾을 수 없습니다. ID: " + notificationId));
+
+        // 2. 읽음 처리
+        notification.setIsRead(true);
+
+        // 3. 저장
+        notificationRepository.save(notification);
+    }
 }
