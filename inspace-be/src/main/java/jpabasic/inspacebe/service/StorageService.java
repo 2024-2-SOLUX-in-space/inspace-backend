@@ -29,7 +29,7 @@ public class StorageService {
             Blob blob = bucket.create(uniqueFileName, file.getInputStream(), file.getContentType());
 
             // 업로드된 파일의 접근 가능한 URL 생성
-            return String.format("https://storage.googleapis.com/%s/%s", bucket.getName(), uniqueFileName);
+            return String.format("https://firebasestorage.storage.googleapis.com/v0/b/%s/o/%s", bucket.getName(), uniqueFileName);
         } catch (IOException e) {
             throw new RuntimeException("이미지 업로드에 실패했어요.", e);
         }
