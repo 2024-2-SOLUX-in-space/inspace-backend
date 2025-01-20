@@ -1,23 +1,20 @@
 package jpabasic.inspacebe.service.item;
 
-import jakarta.servlet.Filter;
 import jakarta.transaction.Transactional;
 import jpabasic.inspacebe.dto.SpaceDetailResponseDto;
 import jpabasic.inspacebe.dto.item.ItemRequestDto;
 import jpabasic.inspacebe.dto.item.ItemResponseDto;
-import jpabasic.inspacebe.dto.page.PageDto;
+import jpabasic.inspacebe.dto.item.ItemsDto;
 import jpabasic.inspacebe.entity.CType;
 import jpabasic.inspacebe.entity.Item;
-import jpabasic.inspacebe.dto.item.*;
-import jpabasic.inspacebe.entity.*;
 import jpabasic.inspacebe.entity.Space;
 import jpabasic.inspacebe.repository.ItemRepository;
 import jpabasic.inspacebe.repository.PageRepository;
 import jpabasic.inspacebe.repository.SpaceRepository;
 import jpabasic.inspacebe.repository.UserRepository;
 import jpabasic.inspacebe.service.StorageService;
-import org.springframework.http.ResponseEntity;
 import jpabasic.inspacebe.service.search.SearchService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -39,7 +36,7 @@ public class ItemService {
     private final StorageService storageService;
 
 
-    public ItemService(ItemRepository itemRepository, SearchService searchService, SpaceRepository spaceRepository, UserRepository userRepository, PageRepository pageRepository,  StorageService storageService) {
+    public ItemService(ItemRepository itemRepository, SearchService searchService, SpaceRepository spaceRepository, UserRepository userRepository, PageRepository pageRepository, StorageService storageService) {
         this.itemRepository = itemRepository;
         this.searchService = searchService;
         this.spaceRepository = spaceRepository;
@@ -47,9 +44,6 @@ public class ItemService {
         this.pageRepository = pageRepository;
         this.storageService = storageService;
     }
-
-
-
 
 
     @Transactional
@@ -76,7 +70,6 @@ public class ItemService {
     }
 
 
-=======
     @Transactional //민서 수정 private -> public
     public ItemResponseDto convertToDto(Item item) {
         ItemResponseDto dto = new ItemResponseDto();
@@ -110,18 +103,14 @@ public class ItemService {
         var user = userRepository.findById(itemRequestDto.getUid())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid User ID"));
 
-        // 디버깅을 위한 추가 로그
-        System.out.println("User ID from DTO: " + itemRequestDto.getUid());
-        System.out.println("Fetched User: " + user);
 
         // Page 검증 및 설정
         var page = pageRepository.findById(itemRequestDto.getPageId())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid Page ID"));
-
-
         if (page.getPageNumber() == 0) {
             page.setPageNumber(1); // 기본값 설정
         }
+
         // Page가 Space와 매핑되어 있는지 검증
         if (!space.getPages().contains(page)) {
             throw new IllegalArgumentException("The provided Page does not belong to the specified Space.");
@@ -131,15 +120,14 @@ public class ItemService {
 
         // DB에서 아이템 확인
         var existingItem = itemRepository.findById(itemRequestDto.getItemId());
-
         if (existingItem.isPresent()) {
-            // 이미 업로드된 아이템
             item = existingItem.get();
             item.setPage(page);
             item.setSpace(space);
             item.setUser(user);
+            item.setUid(user.getUserId());
+            System.out.println("Item UID: " + item.getUid());
         } else {
-            // 캐시에서 아이템 확인
             var cachedData = searchService.getCrawledItemCache(itemRequestDto.getItemId())
                     .orElseThrow(() -> new IllegalArgumentException("캐시에 존재하지 않는 아이템입니다."));
 
@@ -151,28 +139,44 @@ public class ItemService {
                 item.setTitle(query);
             }
 
-            item.setCtype(CType.fromValue((String) cachedData.get("ctype")));
+            // CType 값을 대문자로 변환하여 설정
+            String rawCtype = (String) cachedData.get("ctype");
+            if (rawCtype != null) {
+                String upperCtype = rawCtype.trim().toUpperCase(); // 공백 제거 후 대문자 변환
+                System.out.println("Converted CType value: " + upperCtype);
+                item.setCtype(CType.fromValue(upperCtype)); // 변환된 값 사용
+            }
+
             item.setImageUrl((String) cachedData.get("imageUrl"));
             item.setContentsUrl((String) cachedData.get("contentsUrl"));
             item.setIsUploaded(false);
             item.setSpace(space);
-            item.setPage(page); // Page 설정
+            item.setPage(page);
             item.setUser(user);
+            item.setUid(user.getUserId());
+            System.out.println("Item UID: " + item.getUid());
+
 
             searchService.removeCachedItem(itemRequestDto.getItemId());
         }
 
-        itemRepository.save(item); // DB에 영구 저장
+        // 디버깅: 저장 전 상태 확인
+        System.out.println("Item before save: " + item);
+        System.out.println("Item User: " + item.getUser());
+        System.out.println("Item Space: " + item.getSpace());
+        System.out.println("Item Page: " + item.getPage());
+
+        itemRepository.save(item);
     }
 
 
     //아이템 저장소에서 삭제
 
     @Transactional
-    public void deleteItemOnSpace(String itemId){
-        Item item=itemRepository.findById(itemId)
-                        .orElseThrow(() -> new RuntimeException("Item not found with id: " + itemId));
-        if(item.getIsUploaded()){
+    public void deleteItemOnSpace(String itemId) {
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new RuntimeException("Item not found with id: " + itemId));
+        if (item.getIsUploaded()) {
             storageService.deleteFile(item.getContentsUrl());
         }
         itemRepository.deleteById(itemId);
@@ -183,12 +187,12 @@ public class ItemService {
         Space space = spaceRepository.findById(spaceId)
                 .orElseThrow(() -> new IllegalArgumentException("Space not found"));
 
-        List<Item> items = (List<Item>) space.getItems(); // 반복적으로 호출되므로 미리 한 번 가져옵니다.
+        List<Item> items = space.getItems(); // 반복적으로 호출되므로 미리 한 번 가져옵니다.
         List<Item> filteredItems = new ArrayList<>();
 
         if (category.equals("USERIMAGE")) {
             filteredItems = items.stream()
-                    .filter(item -> item.getIsUploaded() == true) // isUploaded가 true인 항목만 필터링
+                    .filter(item -> item.getIsUploaded()) // isUploaded가 true인 항목만 필터링
                     .collect(Collectors.toList());
 
         } else if (category.equals("YOUTUBE")) {
@@ -220,7 +224,6 @@ public class ItemService {
     }
 
 
-
     @Transactional
     public SpaceDetailResponseDto getSpaceDetails(int spaceId) {
         // spaceId로 Space 조회
@@ -232,30 +235,28 @@ public class ItemService {
     }
 
 
-
     @Transactional
     //유저의 사진을 클라우드 스토리지에 업로드 -> 클라우드 저장 경로를 db에 저장
-    public String uploadImageAndSaveTodb(MultipartFile file, Integer spaceId,String title){
-        Space space=spaceRepository.findById(spaceId)
+    public String uploadImageAndSaveTodb(MultipartFile file, Integer spaceId, String title) {
+        Space space = spaceRepository.findById(spaceId)
                 .orElseThrow(() -> new IllegalArgumentException("Space not found"));
 
-        Item item=new Item();
+        Item item = new Item();
 
         /// Firebase에 파일 업로드
-        Map<String, String> result=storageService.uploadImage(file,item.getItemId());
+        Map<String, String> result = storageService.uploadImage(file, item.getItemId());
 
         // 각각의 값 추출
         String randomUUID = result.get("randomUUID");
         String imageUrl = result.get("imageUrl");
 
 
-
         /// 데이터베이스에 경로 저장
-        String contentsUrl=storageService.getImagePath(file,randomUUID);
+        String contentsUrl = storageService.getImagePath(file, randomUUID);
 
         item.setTitle(title);
         item.setIsUploaded(true); //유저가 직접 올린 이미지=true
-        item.setImageUrl(imageUrl.toString());
+        item.setImageUrl(imageUrl);
         item.setSpace(space);
         item.setContentsUrl(contentsUrl);//삭제 시 필요한 파일 경로
         item.setCtype(CType.IMAGE);
@@ -265,10 +266,6 @@ public class ItemService {
         return imageUrl;
 
     }
-
-
-
-
 
 
 }

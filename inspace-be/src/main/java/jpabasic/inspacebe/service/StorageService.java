@@ -1,32 +1,21 @@
 package jpabasic.inspacebe.service;
 
 import com.google.cloud.storage.Blob;
-import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Bucket;
-import com.google.cloud.storage.Storage;
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.*;
 import com.google.firebase.cloud.StorageClient;
 import jakarta.transaction.Transactional;
-import jpabasic.inspacebe.entity.Item;
 import jpabasic.inspacebe.repository.ItemRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
+import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.io.IOException;
 
 
 @Service
@@ -37,9 +26,8 @@ public class StorageService {
     private final ItemRepository itemRepository;
 
 
-    @Value("${firebase.storage-bucket}")
+    //    @Value("${firebase.storage-bucket}")
     private String storageBucket;
-
 
 
     @Transactional
@@ -63,7 +51,7 @@ public class StorageService {
             imageUrl = String.format(
                     "https://firebasestorage.googleapis.com/v0/b/%s.firebasestorage.app/o/%s?alt=media",
                     "inspace-d2239",  // 버킷 이름을 정확히 지정
-                    URLEncoder.encode(uniqueFileName, StandardCharsets.UTF_8.toString())
+                    URLEncoder.encode(uniqueFileName, StandardCharsets.UTF_8)
                             .replace("%20", "+")  // 공백을 '+'로 변경
             );
 
@@ -79,7 +67,6 @@ public class StorageService {
     }
 
 
-
     @Transactional
     public String getImagePath(MultipartFile file, String randomUUID) {
 
@@ -89,7 +76,7 @@ public class StorageService {
             Bucket bucket = StorageClient.getInstance().bucket();
 
             // 고유한 UUID를 파일 이름으로 생성 (UUID를 사용하지 않고 원본 파일명을 그대로 사용할 수도 있음)
-            String uniqueFileName = randomUUID+ "-" + file.getOriginalFilename();
+            String uniqueFileName = randomUUID + "-" + file.getOriginalFilename();
 
             // Firebase Storage URL 생성 (파일 이름을 그대로 사용)
             fileUrl = String.format("%s", uniqueFileName);
@@ -100,8 +87,6 @@ public class StorageService {
 
         return fileUrl;
     }
-
-
 
 
     //파이어베이스 상에서 사진 삭제
@@ -124,12 +109,11 @@ public class StorageService {
             } else {
                 System.out.println("파일을 찾을 수 없어요.");
             }
-        }catch(Exception e) {
+        } catch (Exception e) {
             System.err.println("파일 삭제중 오류 발생");
         }
-            
-    }
 
+    }
 
 
 }
