@@ -51,18 +51,21 @@ public class SpaceService {
         }
 
 
-            Space space = Space.toEntity(dto);
-            space.setUser(user);
-            spaceRepository.save(space);
+        Space space = Space.toEntity(dto);
+        space.setUser(user);
+        spaceRepository.save(space);
 
-            Integer pageId=space.getSpaceId();
-            pageService.createPages(pageId,user);
 
-            return SpaceDto.toDto(space);
+        Integer pageId = space.getSpaceId();
+        pageService.createPages(pageId, user);
+
+
+        return SpaceDto.toDto(space);
 
     }
 
     //공간 목록 조회
+
     @Transactional
     public List<SpaceDto> getSpaces(User user) {
 //        User user=userRepository.findById(userId).orElseThrow(NoSuchElementException::new);
@@ -77,31 +80,32 @@ public class SpaceService {
 
 
     //특정 공간 조회 //타인이 조회 -> 조회할 수 없도록. //본인이 조회 -> 상관X
+
     @Transactional
-    public SpaceDto getSpace(Integer spaceId){
-        Space space=spaceRepository.findById(spaceId)
-                .orElseThrow(()->new IllegalArgumentException("존재하지 않는 공간입니다."));
-        SpaceDto responseDto=SpaceDto.toDto(space);
+    public SpaceDto getSpace(Integer spaceId) {
+        Space space = spaceRepository.findById(spaceId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 공간입니다."));
+        SpaceDto responseDto = SpaceDto.toDto(space);
         return responseDto;
     }
 
 
     @Transactional
-    public ResponseEntity<SpaceDto> updateSpace(int spaceId, SpaceDto dto){
+    public ResponseEntity<SpaceDto> updateSpace(int spaceId, SpaceDto dto) {
         Space space = spaceRepository.findById(spaceId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 공간입니다."));
 
         // 공간의 값이 변경되었을 때만 업데이트
         if (!dto.getSname().equals(space.getSname())) space.setSname(dto.getSname());
-        if (dto.getSthumb()!=space.getSthumb()) space.setSthumb(dto.getSthumb());
+        if (dto.getSthumb() != space.getSthumb()) space.setSthumb(dto.getSthumb());
         if (!dto.getIsPublic().equals(space.getIsPublic())) space.setIsPublic(dto.getIsPublic());
 
         //대표공간은 1개만 존재할 수 있다는 로직
-        User user=space.getUser();
-        List<Space> spaceList=user.getSpaces();
+        User user = space.getUser();
+        List<Space> spaceList = user.getSpaces();
 
 
-        if (!dto.getIsPrimary().equals(space.getIsPrimary() && dto.getIsPrimary()==true)){
+        if (!dto.getIsPrimary().equals(space.getIsPrimary() && dto.getIsPrimary())) {
 
             for (Space s : spaceList) {
                 if (s.getIsPrimary()) {
@@ -121,17 +125,25 @@ public class SpaceService {
 
 
     //공간 삭제
+
     @Transactional
-    public void deleteSpace(Integer spaceId){
+    public void deleteSpace(Integer spaceId) {
+        Space space = spaceRepository.findById(spaceId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 공간입니다."));
 
-        Space space=spaceRepository.findById(spaceId)
-                .orElseThrow(()->new IllegalArgumentException("존재하지 않는 공간입니다."));
-
-        try{
+        try {
             spaceRepository.delete(space);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new RuntimeException("삭제 하는 데 실패했습니다.");
         }
 
+    }
+
+    // space 와 연관된 pages 데이터 가져오기
+    @Transactional
+    public SpaceDto getSpaceWithPages(Integer spaceId) {
+        Space space = spaceRepository.findById(spaceId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 공간입니다."));
+        return SpaceDto.toDto(space);
     }
 }

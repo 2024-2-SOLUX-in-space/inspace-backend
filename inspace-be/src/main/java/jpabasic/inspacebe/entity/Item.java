@@ -1,10 +1,7 @@
 package jpabasic.inspacebe.entity;
 
 import jakarta.persistence.*;
-import jpabasic.inspacebe.entity.CType;
-import jpabasic.inspacebe.entity.ImageItem;
-import jpabasic.inspacebe.entity.MusicItem;
-import jpabasic.inspacebe.entity.YoutubeItem;
+import jpabasic.inspacebe.converter.CTypeConverter;
 import lombok.*;
 
 import java.util.UUID;
@@ -21,7 +18,7 @@ public class Item {
     @Id //민서 수정
 //    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "item_id", nullable = false)
-    private String itemId=UUID.randomUUID().toString();
+    private String itemId = UUID.randomUUID().toString();
 
     @Column(name = "title", length = 10)
     private String title;
@@ -29,6 +26,7 @@ public class Item {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "ctype")
+    @Convert(converter = CTypeConverter.class)
     private CType ctype;
 
     //클라우드에 저장된 경로.
@@ -55,7 +53,7 @@ public class Item {
     private Float turnover;
 
     //이미지가 겹쳐져있는 경우 순서
-    @Column(name="sequence") //추가
+    @Column(name = "sequence") //추가
     private Integer sequence;
 
 //    @Column(name = "size", columnDefinition = "json")
@@ -70,21 +68,21 @@ public class Item {
     private Space space;
 
     @ManyToOne
-    @JoinColumn(name = "uid", referencedColumnName = "user_id", nullable = true)
+    @JoinColumn(name = "user_id", referencedColumnName = "user_id", nullable = true)
     private User user;
 
 
     @OneToOne(mappedBy = "item", cascade = CascadeType.ALL)
     private YoutubeItem youTubeItem;
 
-    @OneToOne(mappedBy = "item",cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "item", cascade = CascadeType.ALL)
     private ImageItem imageItem;
 
     @OneToOne(mappedBy = "item", cascade = CascadeType.ALL)
     private MusicItem musicItem;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "page_id",referencedColumnName = "page_id")
+    @JoinColumn(name = "page_id", referencedColumnName = "page_id")
     private Page page;  // Page와의 관계를 설정하는 필드
 
 

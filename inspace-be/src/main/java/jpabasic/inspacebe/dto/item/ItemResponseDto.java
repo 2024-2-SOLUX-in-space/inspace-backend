@@ -2,7 +2,10 @@ package jpabasic.inspacebe.dto.item;
 
 import jpabasic.inspacebe.entity.CType;
 import jpabasic.inspacebe.entity.Item;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
 @Builder
 @Getter
@@ -17,8 +20,8 @@ public class ItemResponseDto {
     private CType ctype;
     private String contentsUrl;
     private Boolean isUploaded;
-//    private Integer spaceId;
-//    private Integer uid;
+    private Integer spaceId;
+    private Integer uid;
 
     public ItemResponseDto() {
     }
@@ -29,8 +32,8 @@ public class ItemResponseDto {
         this.imageUrl = imageUrl;
         this.contentsUrl = contentsUrl;
         this.ctype = ctype;
-//        this.spaceId = spaceId;
-//        this.uid = uid;
+        this.spaceId = spaceId;
+        this.uid = uid;
     }
 
     public String getItemId() {
@@ -66,21 +69,21 @@ public class ItemResponseDto {
         this.ctype = ctype;
     }
 
-//    public Integer getSpaceId() {
-//        return spaceId;
-//    }
-//
-//    public void setSpaceId(Integer spaceId) {
-//        this.spaceId = spaceId;
-//    }
-//
-//    public Integer getUid() {
-//        return uid;
-//    }
-//
-//    public void setUid(Integer uid) {
-//        this.uid = uid;
-//    }
+    public Integer getSpaceId() {
+        return spaceId;
+    }
+
+    public void setSpaceId(Integer spaceId) {
+        this.spaceId = spaceId;
+    }
+
+    public Integer getUid() {
+        return uid;
+    }
+
+    public void setUid(Integer uid) {
+        this.uid = uid;
+    }
 
     @Override
     public String toString() {
@@ -90,8 +93,8 @@ public class ItemResponseDto {
                 ", imageUrl='" + imageUrl + '\'' +
                 ", contentsUrl='" + contentsUrl + '\'' +
                 ", ctype=" + ctype +
-//                ", spaceId=" + spaceId +
-//                ", uid=" + uid +
+                ", spaceId=" + spaceId +
+                ", uid=" + uid +
                 '}';
     }
 

@@ -2,18 +2,17 @@ package jpabasic.inspacebe.controller.item;
 
 import io.swagger.v3.oas.annotations.Operation;
 import jpabasic.inspacebe.converter.ResponseMessage;
-import jpabasic.inspacebe.dto.item.*;
-
 import jpabasic.inspacebe.dto.SpaceDetailResponseDto;
+import jpabasic.inspacebe.dto.item.ItemRequestDto;
+import jpabasic.inspacebe.dto.item.ItemResponseDto;
+import jpabasic.inspacebe.dto.item.ItemsDto;
 import jpabasic.inspacebe.service.SpaceService;
 import jpabasic.inspacebe.service.item.ItemService;
-import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,19 +46,18 @@ public class ItemController {
 
     //아이템 저장소에서 삭제
     @DeleteMapping("/delete/item")
-    @Operation(summary="아이템을 저장소에서 삭제")
-    public ResponseEntity<?> deleteItemOnSpace(@RequestParam("itemId")String itemId) {
-        try{
+    @Operation(summary = "아이템을 저장소에서 삭제")
+    public ResponseEntity<?> deleteItemOnSpace(@RequestParam("itemId") String itemId) {
+        try {
             itemService.deleteItemOnSpace(itemId);
 
-        }catch(Exception e){
-            String message="해당 아이템을 삭제하는데 실패했어요.";
+        } catch (Exception e) {
+            String message = "해당 아이템을 삭제하는데 실패했어요.";
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseMessage(message));
         }
-        String message="해당 아이템을 성공적으로 삭제했어요.";
-        return new ResponseEntity<>(message,HttpStatus.OK);
+        String message = "해당 아이템을 성공적으로 삭제했어요.";
+        return new ResponseEntity<>(message, HttpStatus.OK);
     }
-
 
 
     //유저가 직접 올리는 이미지 저장 //POST
@@ -91,17 +89,14 @@ public class ItemController {
     }
 
 
-
-
-
     //저장소 조회(카테고리별 아이템 전체 조회) //아직 카테고리별 처리 안함.
     //category -> userImage, image, youtube,music
     @GetMapping("/category/space/{spaceId}")
-    @Operation(summary="저장소 조회(카테고리별 아이템 전체 조회)")
-    public ResponseEntity<?> getItemsBySpace(@PathVariable("spaceId") Integer spaceId,@RequestParam("category") String category) {
+    @Operation(summary = "저장소 조회(카테고리별 아이템 전체 조회)")
+    public ResponseEntity<?> getItemsBySpace(@PathVariable("spaceId") Integer spaceId, @RequestParam("category") String category) {
         ResponseEntity<List<ItemsDto>> items;
         try {
-            items = itemService.getItemsBySpace(spaceId,category);
+            items = itemService.getItemsBySpace(spaceId, category);
         } catch (Exception e) {
             String message = "아이템 조회에 실패했어요.";
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseMessage(message));
@@ -109,7 +104,14 @@ public class ItemController {
         return items;
     }
 
-
+    @PostMapping("/item/register")
+    public ResponseEntity<?> registerItem(
+            @RequestBody ItemRequestDto itemRequestDto,
+            @RequestParam("query") String query
+    ) {
+        itemService.registerItem(itemRequestDto, query);
+        return ResponseEntity.ok("Item successfully registered.");
+    }
 
 }
 
