@@ -16,21 +16,21 @@ public class Page {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="page_id")
+    @Column(name = "page_id")
     private Integer pageId;
 
-    @Column(name="page_number")
+    @Column(name = "page_number")
     private int pageNumber;
 
-    @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="space_id",referencedColumnName = "space_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "space_id", referencedColumnName = "space_id")
     private Space space;
 
-    @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="user_id",referencedColumnName = "user_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", referencedColumnName = "user_id")
     private User user;
 
-    @OneToMany(mappedBy = "page",cascade = CascadeType.ALL) //cascade 값 변경 - 민서
+    @OneToMany(mappedBy = "page", cascade = CascadeType.ALL) //cascade 값 변경 - 민서
     @JsonIgnoreProperties({"page"})
     private List<Item> items;
 
@@ -41,10 +41,6 @@ public class Page {
         this.items.remove(item);
         item.setPage(null);
     }
-
-
-
-
 
 
 }

@@ -1,11 +1,11 @@
 package jpabasic.inspacebe.dto;
 
 import jpabasic.inspacebe.entity.Space;
-import jpabasic.inspacebe.entity.User;
 import lombok.*;
 import org.hibernate.annotations.CurrentTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -14,11 +14,12 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SpaceDto {
-//    private User user;
+    //    private User user;
     private String sname;
     private int sthumb;
-    private Boolean isPrimary=false;
-    private Boolean isPublic=false;
+    private Boolean isPrimary = false;
+    private Boolean isPublic = false;
+
 
     @CurrentTimestamp
     private LocalDateTime createdAt;

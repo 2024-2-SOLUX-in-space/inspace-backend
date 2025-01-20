@@ -1,5 +1,6 @@
 package jpabasic.inspacebe.service.search;
 
+import jpabasic.inspacebe.entity.CType;
 import jpabasic.inspacebe.entity.Item;
 import jpabasic.inspacebe.entity.Space;
 import jpabasic.inspacebe.repository.ItemRepository;
@@ -18,14 +19,46 @@ public class SearchService {
     private final SpaceRepository spaceRepository;
 
     private final WebClient webClient;
+
+
+    private final Map<String, Item> cachedItems = new HashMap<>();
     private final Map<String, Map<String, Object>> crawledItemCache = new HashMap<>();
 
-    public Optional<Map<String, Object>> getCachedItem(String itemId) {
-        return Optional.ofNullable(crawledItemCache.get(itemId));
+
+    public SearchService(ItemRepository itemRepository, SpaceRepository spaceRepository, WebClient.Builder webClientBuilder) {
+        this.itemRepository = itemRepository;
+        this.spaceRepository = spaceRepository;
+        this.webClient = webClientBuilder.build();
     }
 
-    public void saveToCache(String itemId, Map<String, Object> itemData) {
-        crawledItemCache.put(itemId, itemData);
+    // Crawled 데이터를 위한 메서드
+    public Optional<Map<String, Object>> getCrawledItemCache(String id) {
+        return Optional.ofNullable(crawledItemCache.get(id));
+    }
+
+    // Item 객체를 위한 메서드
+    public Optional<Item> getCachedItem(String id) {
+        return Optional.ofNullable(cachedItems.get(id));
+    }
+
+    // Crawled 데이터 추가
+    public void addCrawledItem(String id, Map<String, Object> data) {
+        crawledItemCache.put(id, data);
+    }
+
+    // Item 캐시 추가
+    public void addCachedItem(String id, Item item) {
+        cachedItems.put(id, item);
+    }
+
+    // Crawled 데이터 제거
+    public void removeCrawledItem(String id) {
+        crawledItemCache.remove(id);
+    }
+
+    // Item 캐시 제거
+    public void removeCachedItem(String id) {
+        cachedItems.remove(id);
     }
 
     @Value("${google.api-key}")
@@ -43,11 +76,6 @@ public class SearchService {
     @Value("${spotify.client-secret}")
     private String clientSecret;
 
-    public SearchService(ItemRepository itemRepository, SpaceRepository spaceRepository, WebClient.Builder webClientBuilder) {
-        this.itemRepository = itemRepository;
-        this.spaceRepository = spaceRepository;
-        this.webClient = webClientBuilder.build();
-    }
 
     public Map<String, Object> searchAll(String query, List<String> filters) {
         Map<String, Object> results = new HashMap<>();
@@ -89,6 +117,7 @@ public class SearchService {
             imageData.put("imageUrl", item.getImageUrl());
             imageData.put("itemId", item.getItemId());
             imageData.put("isUploaded", true);
+            imageData.put("ctype", CType.IMAGE.toValue());
             results.add(imageData);
         }
 
@@ -118,6 +147,7 @@ public class SearchService {
                 imageData.put("url", image.get("thumbnailLink"));
                 imageData.put("contextLink", item.get("link"));
                 imageData.put("isUploaded", false);
+                imageData.put("ctype", CType.IMAGE.toValue());
 
                 String uuid = UUID.randomUUID().toString();
                 imageData.put("itemId", uuid);
@@ -157,6 +187,7 @@ public class SearchService {
                 videoData.put("url", "https://www.youtube.com/watch?v=" + id.get("videoId"));
                 videoData.put("thumbnail", defaultThumbnail.get("url"));
                 videoData.put("isUploaded", false);
+                videoData.put("ctype", CType.YOUTUBE.toValue());
 
                 String uuid = UUID.randomUUID().toString();
                 videoData.put("itemId", uuid);
@@ -211,6 +242,7 @@ public class SearchService {
                 trackData.put("artist", artists.get(0).get("name"));
                 trackData.put("thumbnail", ((Map<String, Object>) ((List<?>) album.get("images")).get(0)).get("url"));
                 trackData.put("isUploaded", false);
+                trackData.put("ctype", CType.MUSIC.toValue());
 
                 String uuid = UUID.randomUUID().toString();
                 trackData.put("itemId", uuid);
@@ -235,6 +267,7 @@ public class SearchService {
                 spaceData.put("userId", space.getUser().getUserId());
                 spaceData.put("isPublic", space.getIsPublic());
                 spaceData.put("createdAt", space.getCreatedAt());
+                spaceData.put("ctype", CType.SPACE.toValue());
 
                 results.add(spaceData);
             }
