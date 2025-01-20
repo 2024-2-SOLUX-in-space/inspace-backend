@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -92,7 +93,7 @@ public class AuthController {
         return response;
     }
 
-    // 비밀번호 찾기 (이메일로 저장된 비밀번호 전송)
+    // 비밀번호 찾기 (임시 비밀번호 생성 및 이메일 전송)
     @PostMapping("/forgot-password")
     public Map<String, Object> forgotPassword(@RequestBody PasswordResetRequest request) {
         Map<String, Object> response = new HashMap<>();
@@ -105,18 +106,27 @@ public class AuthController {
             return response;
         }
 
-        // 사용자의 비밀번호를 이메일로 전송
-        String password = user.getPassword(); // 저장된 비밀번호를 가져옴
-        emailService.sendPasswordResetEmail(user.getEmail(), "Your password is: " + password); // 비밀번호를 이메일로 전송
+        // 임시 비밀번호 생성
+        String temporaryPassword = generateTemporaryPassword();
+
+        // 사용자 비밀번호를 임시 비밀번호로 업데이트 (암호화하여 저장)
+        user.setPassword(passwordEncoder.encode(temporaryPassword));
+        userRepository.save(user);
+
+        // 임시 비밀번호 이메일로 전송
+        emailService.sendPasswordResetEmail(
+                user.getEmail(),
+                "임시 비밀번호 : " + temporaryPassword
+        );
 
         response.put("success", true);
-        response.put("message", "입력된 이메일로 비밀번호가 전송되었습니다.");
+        response.put("message", "임시 비밀번호가 이메일로 전송되었습니다. 로그인 후 비밀번호를 변경해 주세요.");
         return response;
     }
 
-    // 비밀번호 재설정용 토큰 생성 (예시로 간단히 구현)
-    private String generateResetToken(String email) {
-        return email + "_reset_token"; // 실제로는 보안적인 이유로 토큰을 생성해야 합니다.
+    // 임시 비밀번호 생성 메서드
+    private String generateTemporaryPassword() {
+        return UUID.randomUUID().toString().substring(0, 8); // 8자리 랜덤 문자열 생성
     }
 
     // 로그아웃
