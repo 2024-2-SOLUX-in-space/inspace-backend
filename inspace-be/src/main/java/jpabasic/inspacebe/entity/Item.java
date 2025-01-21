@@ -133,6 +133,13 @@ public class Item {
         return this.user != null ? this.user.getUserId() : null;
     }
 
+    public YoutubeItem getYoutubeItem() {
+        return this.youTubeItem;
+    }
+
+    public MusicItem getMusicItem() {
+        return this.musicItem;
+    }
 
 }
 

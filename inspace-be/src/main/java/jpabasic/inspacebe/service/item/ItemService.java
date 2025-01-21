@@ -63,9 +63,28 @@ public class ItemService {
         ItemResponseDto dto = new ItemResponseDto();
         dto.setItemId((String) cacheData.get("itemId"));
         dto.setTitle((String) cacheData.get("title"));
-        dto.setImageUrl((String) cacheData.get("url"));
+        dto.setImageUrl((String) cacheData.get("imageUrl"));
+        dto.setContentsUrl((String) cacheData.get("contentUrl"));
         dto.setIsUploaded((Boolean) cacheData.get("isUploaded"));
         dto.setUserName("Crawled Source");
+
+        dto.setCtype(CType.valueOf(cacheData.get("ctype").toString()));
+
+
+        // YouTube
+        if (CType.YOUTUBE.equals(cacheData.get("ctype"))) {
+            dto.setYtbUrl((String) cacheData.get("contentUrl"));
+            dto.setYtbThumb((String) cacheData.get("imageUrl"));
+            dto.setYtbDur((Integer) cacheData.get("ytbDur"));
+        }
+
+        // Music
+        if (CType.MUSIC.equals(cacheData.get("ctype"))) {
+            dto.setMusicUrl((String) cacheData.get("contentUrl"));
+            dto.setMusicThumb((String) cacheData.get("imageUrl"));
+            dto.setMusicArtist((String) cacheData.get("artist"));
+        }
+
         return dto;
     }
 
@@ -77,12 +96,29 @@ public class ItemService {
         dto.setTitle(item.getTitle());
         dto.setImageUrl(item.getImageUrl());
         dto.setIsUploaded(item.getIsUploaded());
+        dto.setContentsUrl(item.getContentsUrl());
+        dto.setCtype(item.getCtype());
+
 
         if (item.getIsUploaded()) {
             dto.setUserId(item.getUser().getUserId());
             dto.setUserName(item.getUser().getName());
         } else {
             dto.setUserName("Crawled Source");
+        }
+
+        // YouTube-specific fields
+        if (item.getYoutubeItem() != null) {
+            dto.setYtbUrl(item.getYoutubeItem().getYtbUrl());
+            dto.setYtbThumb(item.getYoutubeItem().getYtbThumb());
+            dto.setYtbDur(item.getYoutubeItem().getYtbDur());
+        }
+
+        // Music-specific fields
+        if (item.getMusicItem() != null) {
+            dto.setMusicUrl(item.getMusicItem().getMusicUrl());
+            dto.setMusicThumb(item.getMusicItem().getMusicThumb());
+            dto.setMusicArtist(item.getMusicItem().getMusicArtist());
         }
 
         return dto;
@@ -140,15 +176,15 @@ public class ItemService {
             }
 
             // CType 값을 대문자로 변환하여 설정
-            String rawCtype = (String) cachedData.get("ctype");
-            if (rawCtype != null) {
-                String upperCtype = rawCtype.trim().toUpperCase(); // 공백 제거 후 대문자 변환
-                System.out.println("Converted CType value: " + upperCtype);
-                item.setCtype(CType.fromValue(upperCtype)); // 변환된 값 사용
+            Object rawCtype = cachedData.get("ctype");
+            if (rawCtype instanceof String) {
+                item.setCtype(CType.valueOf(((String) rawCtype).toUpperCase()));
+            } else if (rawCtype instanceof CType) {
+                item.setCtype((CType) rawCtype);
             }
 
             item.setImageUrl((String) cachedData.get("imageUrl"));
-            item.setContentsUrl((String) cachedData.get("contentsUrl"));
+            item.setContentsUrl((String) cachedData.get("contentUrl"));
             item.setIsUploaded(false);
             item.setSpace(space);
             item.setPage(page);
