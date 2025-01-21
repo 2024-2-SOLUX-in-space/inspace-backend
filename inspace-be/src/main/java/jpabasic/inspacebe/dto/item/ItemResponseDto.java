@@ -23,6 +23,16 @@ public class ItemResponseDto {
     private Integer spaceId;
     private Integer uid;
 
+    // YouTube-specific fields
+    private String ytbUrl;
+    private String ytbThumb;
+    private Integer ytbDur;
+
+    // Music-specific fields
+    private String musicUrl;
+    private String musicThumb;
+    private String musicArtist;
+
     public ItemResponseDto() {
     }
 
@@ -85,6 +95,7 @@ public class ItemResponseDto {
         this.uid = uid;
     }
 
+
     @Override
     public String toString() {
         return "ItemResponseDto{" +
@@ -95,6 +106,12 @@ public class ItemResponseDto {
                 ", ctype=" + ctype +
                 ", spaceId=" + spaceId +
                 ", uid=" + uid +
+                ", ytbUrl='" + ytbUrl + '\'' +
+                ", ytbThumb='" + ytbThumb + '\'' +
+                ", ytbDur=" + ytbDur +
+                ", musicUrl='" + musicUrl + '\'' +
+                ", musicThumb='" + musicThumb + '\'' +
+                ", musicArtist='" + musicArtist + '\'' +
                 '}';
     }
 
@@ -106,6 +123,15 @@ public class ItemResponseDto {
                 .imageUrl(item.getImageUrl())
                 .contentsUrl(item.getContentsUrl())
                 .ctype(item.getCtype())
+                .userName(item.getUser() != null ? item.getUser().getName() : "Crawled Source")
+                // YouTube-specific fields
+                .ytbUrl(item.getYoutubeItem() != null ? item.getYoutubeItem().getYtbUrl() : null)
+                .ytbThumb(item.getYoutubeItem() != null ? item.getYoutubeItem().getYtbThumb() : null)
+                .ytbDur(item.getYoutubeItem() != null ? item.getYoutubeItem().getYtbDur() : null)
+                // Music-specific fields
+                .musicUrl(item.getMusicItem() != null ? item.getMusicItem().getMusicUrl() : null)
+                .musicThumb(item.getMusicItem() != null ? item.getMusicItem().getMusicThumb() : null)
+                .musicArtist(item.getMusicItem() != null ? item.getMusicItem().getMusicArtist() : null)
                 .build();
 
     }

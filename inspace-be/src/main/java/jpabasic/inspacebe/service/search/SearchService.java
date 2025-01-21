@@ -117,7 +117,7 @@ public class SearchService {
             imageData.put("imageUrl", item.getImageUrl());
             imageData.put("itemId", item.getItemId());
             imageData.put("isUploaded", true);
-            imageData.put("ctype", CType.IMAGE.toValue());
+            imageData.put("ctype", CType.IMAGE);
             results.add(imageData);
         }
 
@@ -144,10 +144,10 @@ public class SearchService {
                 Map<String, Object> imageData = new HashMap<>();
                 imageData.put("title", item.get("title"));
                 Map<String, String> image = (Map<String, String>) item.get("image");
-                imageData.put("url", image.get("thumbnailLink"));
-                imageData.put("contextLink", item.get("link"));
+                imageData.put("imageUrl", image.get("thumbnailLink"));
+                imageData.put("contentUrl", item.get("link"));
                 imageData.put("isUploaded", false);
-                imageData.put("ctype", CType.IMAGE.toValue());
+                imageData.put("ctype", CType.IMAGE);
 
                 String uuid = UUID.randomUUID().toString();
                 imageData.put("itemId", uuid);
@@ -179,18 +179,50 @@ public class SearchService {
             for (Map<String, Object> item : items) {
                 Map<String, Object> videoData = new HashMap<>();
                 Map<String, Object> id = (Map<String, Object>) item.get("id");
+
+                // 동영상 ID 가져오기
+                String videoId = (String) id.get("videoId");
+
+                // 재생시간 가져오기 위한 API 호출
+                String detailsUrl = String.format(
+                        "https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=%s&key=%s",
+                        videoId, youtubeApiKey
+                );
+
+                Map<String, Object> detailsResponse = webClient.get()
+                        .uri(detailsUrl)
+                        .retrieve()
+                        .bodyToMono(Map.class)
+                        .block();
+
+                String duration = null;
+                if (detailsResponse != null && detailsResponse.containsKey("items")) {
+                    List<Map<String, Object>> detailsItems = (List<Map<String, Object>>) detailsResponse.get("items");
+                    if (!detailsItems.isEmpty()) {
+                        Map<String, Object> contentDetails = (Map<String, Object>) detailsItems.get(0).get("contentDetails");
+                        duration = (String) contentDetails.get("duration");
+                    }
+                }
+
+                // 재생시간 변환 (ISO 8601 Duration 형식 -> 초 단위 변환)
+                Integer ytbDur = parseYouTubeDuration(duration);
+
                 Map<String, Object> snippet = (Map<String, Object>) item.get("snippet");
                 Map<String, Object> thumbnails = (Map<String, Object>) snippet.get("thumbnails");
                 Map<String, String> defaultThumbnail = (Map<String, String>) thumbnails.get("default");
 
                 videoData.put("title", snippet.get("title"));
-                videoData.put("url", "https://www.youtube.com/watch?v=" + id.get("videoId"));
-                videoData.put("thumbnail", defaultThumbnail.get("url"));
+                videoData.put("contentUrl", "https://www.youtube.com/watch?v=" + id.get("videoId"));
+                videoData.put("imageUrl", defaultThumbnail.get("url"));
                 videoData.put("isUploaded", false);
-                videoData.put("ctype", CType.YOUTUBE.toValue());
+                videoData.put("ctype", CType.YOUTUBE);
+                videoData.put("ytbDur", ytbDur);
 
                 String uuid = UUID.randomUUID().toString();
                 videoData.put("itemId", uuid);
+
+                System.out.println("Generated video data: " + videoData);
+
                 crawledItemCache.put(uuid, videoData); // 캐시에 저장
 
                 results.add(videoData);
@@ -198,6 +230,46 @@ public class SearchService {
         }
 
         return results;
+    }
+
+    private Integer parseYouTubeDuration(String duration) {
+        if (duration == null || duration.isEmpty()) {
+            return 0; // null 또는 빈 값일 경우 기본값 반환
+        }
+
+        int hours = 0;
+        int minutes = 0;
+        int seconds = 0;
+
+        try {
+            // "PT" 제거
+            duration = duration.replace("PT", "");
+
+            // 시간 처리
+            if (duration.contains("H")) {
+                String[] split = duration.split("H");
+                hours = Integer.parseInt(split[0]);
+                duration = split.length > 1 ? split[1] : ""; // 남은 부분 업데이트
+            }
+
+            // 분 처리
+            if (duration.contains("M")) {
+                String[] split = duration.split("M");
+                minutes = Integer.parseInt(split[0]);
+                duration = split.length > 1 ? split[1] : ""; // 남은 부분 업데이트
+            }
+
+            // 초 처리
+            if (duration.contains("S")) {
+                seconds = Integer.parseInt(duration.replace("S", ""));
+            }
+        } catch (NumberFormatException e) {
+            // 예상치 못한 형식일 경우 기본값 반환
+            System.err.println("Invalid duration format: " + duration);
+            return 0;
+        }
+
+        return hours * 3600 + minutes * 60 + seconds;
     }
 
     private String getSpotifyAccessToken() {
@@ -238,14 +310,17 @@ public class SearchService {
                 Map<String, String> externalUrls = (Map<String, String>) item.get("external_urls");
 
                 trackData.put("title", item.get("name"));
-                trackData.put("url", externalUrls.get("spotify"));
+                trackData.put("contentUrl", externalUrls.get("spotify"));
                 trackData.put("artist", artists.get(0).get("name"));
-                trackData.put("thumbnail", ((Map<String, Object>) ((List<?>) album.get("images")).get(0)).get("url"));
+                trackData.put("imageUrl", ((Map<String, Object>) ((List<?>) album.get("images")).get(0)).get("url"));
                 trackData.put("isUploaded", false);
-                trackData.put("ctype", CType.MUSIC.toValue());
+                trackData.put("ctype", CType.MUSIC);
 
                 String uuid = UUID.randomUUID().toString();
                 trackData.put("itemId", uuid);
+
+                System.out.println("Generated track data: " + trackData);
+
                 crawledItemCache.put(uuid, trackData); // 캐시에 저장
 
                 results.add(trackData);
@@ -267,7 +342,7 @@ public class SearchService {
                 spaceData.put("userId", space.getUser().getUserId());
                 spaceData.put("isPublic", space.getIsPublic());
                 spaceData.put("createdAt", space.getCreatedAt());
-                spaceData.put("ctype", CType.SPACE.toValue());
+                spaceData.put("ctype", CType.SPACE);
 
                 results.add(spaceData);
             }
