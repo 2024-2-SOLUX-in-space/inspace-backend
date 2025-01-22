@@ -38,11 +38,14 @@ public class UserController {
             return ResponseEntity.status(401).body(response);
         }
 
+        // 사용자 정보를 반환
         response.put("success", true);
         response.put("message", "사용자 정보를 조회했습니다.");
-        Map<String, String> data = new HashMap<>();
-        data.put("name", user.getName());
-        data.put("email", user.getEmail());
+
+        // 사용자 정보 포함
+        Map<String, Object> data = new HashMap<>();
+        data.put("name", user.getName()); // 수정 가능 기본값
+        data.put("email", user.getEmail()); // 읽기 전용
         response.put("data", data);
 
         return ResponseEntity.ok(response);
@@ -65,15 +68,15 @@ public class UserController {
             return ResponseEntity.status(401).body(response);
         }
 
+        // 비밀번호 확인 일치 여부 확인
         if (!request.getPassword().equals(request.getPasswordConfirmation())) {
             response.put("success", false);
             response.put("message", "비밀번호 확인이 일치하지 않습니다.");
             return ResponseEntity.badRequest().body(response);
         }
 
-        // 사용자 정보 업데이트
+        // 사용자 정보 업데이트 (이메일 수정 방지)
         user.setName(request.getName());
-        user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         userRepository.save(user);
 
