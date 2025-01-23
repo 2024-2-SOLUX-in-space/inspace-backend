@@ -24,13 +24,10 @@ public class UserController {
 
     // 내 정보 조회
     @GetMapping
-    public ResponseEntity<Map<String, Object>> getUserInfo(@AuthenticationPrincipal String email) {
+    public ResponseEntity<Map<String, Object>> getUserInfo(@AuthenticationPrincipal User user) {
         Map<String, Object> response = new HashMap<>();
 
-        System.out.println("Authenticated Email: " + email);
-
-        // 사용자 조회
-        User user = userRepository.findByEmail(email).orElse(null);
+        System.out.println("Authenticated User: " + user);
 
         if (user == null) {
             response.put("success", false);
@@ -53,14 +50,11 @@ public class UserController {
 
     // 내 정보 수정
     @PatchMapping
-    public ResponseEntity<Map<String, Object>> updateUserInfo(@AuthenticationPrincipal String email,
+    public ResponseEntity<Map<String, Object>> updateUserInfo(@AuthenticationPrincipal User user,
                                                               @RequestBody UpdateUserRequest request) {
         Map<String, Object> response = new HashMap<>();
 
-        System.out.println("Authenticated Email: " + email);
-
-        // 사용자 조회
-        User user = userRepository.findByEmail(email).orElse(null);
+        System.out.println("Authenticated User: " + user);
 
         if (user == null) {
             response.put("success", false);
