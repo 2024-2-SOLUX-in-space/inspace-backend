@@ -39,6 +39,14 @@ jobs:
     - name: Add Firebase Key
       run: echo "${{ secrets.FIREBASE_KEY }}" > firebase-key.json
 
+    - name: MySql 설치
+      uses: samin/mysql-action@v1
+      with:
+        host port: 3306
+        mysql database: inspace
+        mysql user: root
+        mysql password: 1234
+
 
     # Configure Gradle for optimal use in GitHub Actions, including caching of downloaded dependencies.
     # See: https://github.com/gradle/actions/blob/main/setup-gradle/README.md
