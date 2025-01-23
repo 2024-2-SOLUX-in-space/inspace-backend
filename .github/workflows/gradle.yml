@@ -24,7 +24,7 @@ jobs:
         distribution: 'temurin'
         
     - name: Grant execute permission for gradlew
-      run: chmod +x ./inspace-be/gradlew
+      run: chmod +x gradlew
     
     - name: Build with Gradle
-      run: ./inspace-be/gradlew clean build
+      run: ./gradlew clean build
