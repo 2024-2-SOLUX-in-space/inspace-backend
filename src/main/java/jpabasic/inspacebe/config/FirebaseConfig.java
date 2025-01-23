@@ -12,20 +12,27 @@ import org.springframework.core.io.ClassPathResource;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Objects;
 
 @Configuration
 public class FirebaseConfig {
 
 
-    @Value("${firebase.service-account-key}")
+    @Value("${firebase.keyPath}")
     private String serviceAccountKey;
     @Value("${firebase.storage-bucket}")
     private String storageBucket;
     @PostConstruct
     public void initializeFirebase() throws IOException {
         InputStream serviceAccount =
-                new ClassPathResource(serviceAccountKey).getInputStream();
-        FirebaseOptions options = new FirebaseOptions.Builder()
+                getClass().getResourceAsStream(serviceAccountKey);
+
+        if (Objects.isNull(serviceAccount)) {
+            throw new NullPointerException("service account is null");
+        }
+
+
+        FirebaseOptions options = FirebaseOptions.builder()
                 .setCredentials(GoogleCredentials.fromStream(serviceAccount))
                 .setStorageBucket(storageBucket) // Cloud Storage 버킷 URL
                 .build();

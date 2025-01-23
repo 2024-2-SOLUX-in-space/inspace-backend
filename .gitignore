@@ -20,6 +20,7 @@ bin/
 ### IntelliJ IDEA ###
 application.properties
 inspace-d2239-firebase-adminsdk-1zvtd-f59c6811fa.json
+firebase-key.json
 .idea
 *.iws
 *.iml
