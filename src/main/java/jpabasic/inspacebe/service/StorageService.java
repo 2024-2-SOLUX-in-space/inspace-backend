@@ -16,7 +16,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-
+import org.springframework.beans.factory.annotation.Value;
 
 @Service
 @RequiredArgsConstructor
@@ -26,7 +26,7 @@ public class StorageService {
     private final ItemRepository itemRepository;
 
 
-    //    @Value("${firebase.storage-bucket}")
+    @Value("${firebase.storage-bucket}")
     private String storageBucket;
 
 
