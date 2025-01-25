@@ -105,7 +105,7 @@ jobs:
         --application-name inspace \
         --deployment-group-name inspace-backend \
         --file-exists-behavior OVERWRITE \
-        --s3-location bucket=insapce-deploy,bundleType=zip,key=inspace.zip \
+        --s3-location bucket=inspace-deploy,bundleType=zip,key=inspace.zip \
         --region ap-northeast-2
         
      
