@@ -8,6 +8,7 @@ import jpabasic.inspacebe.dto.SpaceDto;
 import jpabasic.inspacebe.dto.item.ArchiveRequestDto;
 import jpabasic.inspacebe.dto.page.PageDto;
 import jpabasic.inspacebe.service.PageService;
+import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -49,12 +50,28 @@ public class PageController {
     @Operation(summary="페이지(아카이브)에 아이템 등록/수정")
     public ResponseEntity<?> archiveItems(@PathVariable Integer pageId, @RequestBody List<ArchiveRequestDto> archiveDtos) {
         try{
+            pageService.archiveSticker(archiveDtos);
+
             pageService.archiveItems(pageId,archiveDtos);
         }catch(Exception e){
             String message="아이템 등록에 실패했어요. 다시 시도해주세요.";
             return ResponseEntity.badRequest().body(message);
         }
         String message="페이지가 성공적으로 저장되었어요.";
+        return ResponseEntity.ok().body(message);
+    }
+
+    //아이템 페잊이(아카이브)에 스티커 등록 시
+    @PostMapping("/sticker/{pageId}")
+    @Operation(summary="페이지(아카이브)에 스티커 등록")
+    public ResponseEntity<?> archiveSticker(@RequestBody List<ArchiveRequestDto> archiveDtos) {
+        try{
+            pageService.archiveSticker(archiveDtos);
+        }catch(Exception e){
+            String messsage="스티커 등록에 실패했어요.";
+            return ResponseEntity.badRequest().body(messsage);
+        }
+        String message="스티커가 성공적으로 저장되었어요.";
         return ResponseEntity.ok().body(message);
     }
 

@@ -37,17 +37,19 @@ public class SpaceService {
         //유저가 직접 공간을 '대표공간'이라고 설정 -> 원래 있던 대표 공간을 false로 바꾸기
         List<Space> spaces = user.getSpaces();
 
+
         if (spaces.isEmpty()) {
-            dto.setIsPublic(true);
+            dto.setIsPrimary(true);
         } else {
             for (Space target : spaces) {
-                if (target.getIsPublic().equals(true)) {
-                    target.setIsPublic(false);
+                if (target.getIsPrimary().equals(true)) {
+                    target.setIsPrimary(false);
+                    spaceRepository.save(target);
                     System.out.println("다른거 false 처리하고 true처리함");
                     break;
                 }
             }
-            dto.setIsPublic(true);
+            dto.setIsPrimary(true);
         }
 
 

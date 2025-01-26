@@ -18,7 +18,7 @@ public class SpaceDto {
     private String sname;
     private int sthumb;
     private Boolean isPrimary = false;
-    private Boolean isPublic = false;
+    private Boolean isPublic;
 
 
     private LocalDateTime createdAt;

@@ -2,14 +2,8 @@ package jpabasic.inspacebe.service;
 
 import jakarta.transaction.Transactional;
 import jpabasic.inspacebe.dto.item.ArchiveRequestDto;
-import jpabasic.inspacebe.entity.Item;
-import jpabasic.inspacebe.entity.Page;
-import jpabasic.inspacebe.entity.Space;
-import jpabasic.inspacebe.entity.User;
-import jpabasic.inspacebe.repository.ItemRepository;
-import jpabasic.inspacebe.repository.PageRepository;
-import jpabasic.inspacebe.repository.SpaceRepository;
-import jpabasic.inspacebe.repository.UserRepository;
+import jpabasic.inspacebe.entity.*;
+import jpabasic.inspacebe.repository.*;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -22,12 +16,14 @@ public class PageService {
     private final ItemRepository itemRepository;
     private final PageRepository pageRepository;
     private final UserRepository userRepository;
+    private final StickerRepository stickerRepository;
 
-    public PageService(SpaceRepository spaceRepository, ItemRepository itemRepository, PageRepository pageRepository, UserRepository userRepository) {
+    public PageService(SpaceRepository spaceRepository, ItemRepository itemRepository, PageRepository pageRepository, UserRepository userRepository, StickerRepository stickerRepository) {
         this.spaceRepository = spaceRepository;
         this.itemRepository = itemRepository;
         this.pageRepository = pageRepository;
         this.userRepository = userRepository;
+        this.stickerRepository = stickerRepository;
     }
 
     //페이지 생성
@@ -100,6 +96,19 @@ public class PageService {
             item.setPage(page);
             itemRepository.save(item);
 
+        }
+    }
+
+    //아카이브에 스티커 등록
+    @Transactional
+    public void archiveSticker (List<ArchiveRequestDto> dtoList) {
+
+        for(ArchiveRequestDto dto : dtoList) {
+            if(dto.getCtype().equals(CType.STICKER)){
+                StickerItem stickerItem=new StickerItem();
+                stickerItem.setSrc(dto.getImageUrl());
+                stickerRepository.save(stickerItem);
+            }
         }
 
 
