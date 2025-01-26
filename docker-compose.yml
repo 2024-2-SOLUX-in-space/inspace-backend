@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  app:
+    image: inspace-backend:latest
+    container_name: inspace-backend
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - DB_URL=jdbc:mysql://db:3306/in_space
+      - DB_USERNAME=root
+      - DB_PASSWORD=1234
+    depends_on:
+      - db
+
+  db:
+    image: mysql:latest
+    container_name: inspace-db
+    environment:
+      MYSQL_DATABASE: in_space
+      MYSQL_ROOT_PASSWORD: 1234
+    volumes:
+      - db_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+
+volumes:
+  db_data:
