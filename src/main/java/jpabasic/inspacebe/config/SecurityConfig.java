@@ -29,6 +29,7 @@ public class SecurityConfig {
         http
                 .csrf().disable()
                 .cors()
+                .configurationSource(corsConfigurationSource())
                 .and()
                 .authorizeHttpRequests()
                 .requestMatchers("/api/auth/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll() // 인증 없이 허용
