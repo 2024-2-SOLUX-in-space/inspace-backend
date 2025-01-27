@@ -2,12 +2,17 @@ package jpabasic.inspacebe.service;
 
 import jakarta.transaction.Transactional;
 import jpabasic.inspacebe.dto.item.ArchiveRequestDto;
+import jpabasic.inspacebe.dto.item.ArchiveRequestStickerDto;
 import jpabasic.inspacebe.entity.*;
 import jpabasic.inspacebe.repository.*;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
+
+import static jpabasic.inspacebe.dto.item.ArchiveRequestDto.toStickerRequestDto;
 
 @Service
 public class PageService {
@@ -99,20 +104,98 @@ public class PageService {
         }
     }
 
-    //아카이브에 스티커 등록
+    //아카이브에 스티커 등록 전 stickerItem entity 생성
     @Transactional
-    public void archiveSticker (List<ArchiveRequestDto> dtoList) {
+    public List<ArchiveRequestStickerDto> postStickerItem (List<ArchiveRequestDto> dtoList) {
+
+        List<ArchiveRequestStickerDto> stickers = new ArrayList<>();
 
         for(ArchiveRequestDto dto : dtoList) {
             if(dto.getCtype().equals(CType.STICKER)){
-                StickerItem stickerItem=new StickerItem();
-                stickerItem.setSrc(dto.getImageUrl());
-                stickerRepository.save(stickerItem);
+                String title=dto.getTitle();
+
+                if(!stickerRepository.existsByTitle(title)) {
+
+                    StickerItem stickerItem = new StickerItem();
+
+                    stickerItem.setTitle(dto.getSticker().getTitle());
+                    stickerItem.setSrc(dto.getSticker().getSrc());
+                    stickerItem.setAlt(dto.getSticker().getAlt());
+                    stickerItem.setColor(dto.getSticker().getColor());
+                    stickerRepository.save(stickerItem);
+
+                }
+
+
+                ArchiveRequestStickerDto stickerDto=toStickerRequestDto(dto);
+                stickers.add(stickerDto); // 리스트에 추가
+            }
+        }
+
+        return stickers;
+    }
+
+    //아카이브에 스티커 등록 : Item entity 생성
+    @Transactional
+    public void archiveStickers(List<ArchiveRequestDto> dtoList,Integer pageId) {
+
+        Page page=pageRepository.findById(pageId)
+                .orElseThrow(()->new RuntimeException("Page not found with id: " + pageId));
+
+        for(ArchiveRequestDto dto : dtoList) {
+
+            if(dto.getCtype().equals(CType.STICKER)) {
+
+//                StickerItem stickerItem = stickerRepository.findById(itemId)
+//                        .orElseThrow(() -> new RuntimeException("sticker Item not found"));
+
+                Item item = new Item();
+                StickerItem stickerItem;
+
+
+                item.setPage(page);
+                item.setCtype(CType.STICKER);
+                item.setPositionX(dto.getPositionX());
+                item.setPositionY(dto.getPositionY());
+                item.setHeight(dto.getHeight());
+                item.setWidth(dto.getWidth());
+                item.setTurnover(dto.getTurnover());
+                item.setSequence(dto.getSequence());
+                itemRepository.save(item);
+
+
+                dto.setItemId(item.getItemId());
+                String title=dto.getSticker().getTitle();
+
+                if(!stickerRepository.existsByTitle(title)) {
+
+                    stickerItem = new StickerItem();
+                    stickerItem.setItemId(item.getItemId());
+                    stickerItem.setTitle(dto.getSticker().getTitle());
+                    stickerItem.setSrc(dto.getSticker().getSrc());
+                    stickerItem.setAlt(dto.getSticker().getAlt());
+                    stickerItem.setColor(dto.getSticker().getColor());
+                    stickerRepository.save(stickerItem);
+
+                }else{
+                    stickerItem=stickerRepository.findByTitle(title);
+
+                }
+
+
+                item.setStickerItem(stickerItem);
+                itemRepository.save(item);
+
+
+
+
+//            ArchiveRequestStickerDto stickerDto=toStickerRequestDto(dto);
+//            stickers.add(stickerDto); // 리스트에 추가
+            }
             }
         }
 
 
-    }
 
 
     //페이지(아카이브)에서 아이템 삭제
@@ -125,6 +208,9 @@ public class PageService {
         itemRepository.save(item);
 
     }
+
+
+
 
 
 }

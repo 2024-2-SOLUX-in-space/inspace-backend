@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import jpabasic.inspacebe.converter.ResponseMessage;
 import jpabasic.inspacebe.dto.SpaceDto;
 import jpabasic.inspacebe.dto.item.ArchiveRequestDto;
+import jpabasic.inspacebe.dto.item.ArchiveRequestStickerDto;
 import jpabasic.inspacebe.dto.page.PageDto;
 import jpabasic.inspacebe.service.PageService;
 import org.apache.coyote.Response;
@@ -50,8 +51,6 @@ public class PageController {
     @Operation(summary="페이지(아카이브)에 아이템 등록/수정")
     public ResponseEntity<?> archiveItems(@PathVariable Integer pageId, @RequestBody List<ArchiveRequestDto> archiveDtos) {
         try{
-            pageService.archiveSticker(archiveDtos);
-
             pageService.archiveItems(pageId,archiveDtos);
         }catch(Exception e){
             String message="아이템 등록에 실패했어요. 다시 시도해주세요.";
@@ -61,15 +60,23 @@ public class PageController {
         return ResponseEntity.ok().body(message);
     }
 
-    //아이템 페잊이(아카이브)에 스티커 등록 시
+
+    //아이템 페이지(아카이브)에 스티커 등록 시
     @PostMapping("/sticker/{pageId}")
     @Operation(summary="페이지(아카이브)에 스티커 등록")
-    public ResponseEntity<?> archiveSticker(@RequestBody List<ArchiveRequestDto> archiveDtos) {
+    public ResponseEntity<?> archiveSticker(@PathVariable Integer pageId, @RequestBody List<ArchiveRequestDto> archiveDtos) {
         try{
-            pageService.archiveSticker(archiveDtos);
+
+//            //stickerItem 생성
+//            List<ArchiveRequestStickerDto> stickers=pageService.postStickerItem(archiveDtos);
+//            System.out.println(stickers);
+
+            //Item 생성
+            pageService.archiveStickers(archiveDtos,pageId);
+
         }catch(Exception e){
-            String messsage="스티커 등록에 실패했어요.";
-            return ResponseEntity.badRequest().body(messsage);
+            String message = "스티커 등록에 실패했어요. 에러: " + e.getMessage();
+            return ResponseEntity.badRequest().body(message);
         }
         String message="스티커가 성공적으로 저장되었어요.";
         return ResponseEntity.ok().body(message);
