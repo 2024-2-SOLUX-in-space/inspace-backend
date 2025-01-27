@@ -114,7 +114,7 @@ public class SpaceService {
                 if (s.getIsPrimary().equals(true)) {
                     s.setIsPrimary(false);
                     spaceRepository.save(s);
-                    
+
                 }
             }
 

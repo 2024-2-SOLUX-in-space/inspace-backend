@@ -1,10 +1,7 @@
 package jpabasic.inspacebe.dto.item;
 
 import io.swagger.v3.core.util.Json;
-import jpabasic.inspacebe.entity.CType;
-import jpabasic.inspacebe.entity.Item;
-import jpabasic.inspacebe.entity.Page;
-import jpabasic.inspacebe.entity.Space;
+import jpabasic.inspacebe.entity.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -63,6 +60,7 @@ public class ArchiveRequestDto {
                 .width(item.getWidth())
                 .turnover(item.getTurnover())
                 .sequence(item.getSequence())
+                .sticker(item.getStickerItem() != null ? StickerItem.toDto(item.getStickerItem()) : null) // null 처리 추가
                 .build();
     }
 

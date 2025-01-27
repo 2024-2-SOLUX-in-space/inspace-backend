@@ -82,7 +82,8 @@ public class Item {
     @OneToOne(mappedBy = "item", cascade = CascadeType.ALL)
     private MusicItem musicItem;
 
-    @OneToOne(mappedBy="item",cascade = CascadeType.ALL)
+    @ManyToOne
+    @JoinColumn(name="sticker_id")
     private StickerItem stickerItem;
 
     @ManyToOne(fetch = FetchType.LAZY)

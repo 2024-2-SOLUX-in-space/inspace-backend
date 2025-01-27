@@ -74,6 +74,7 @@ public class PageService {
 
         // Page에서 Item들을 가져오기
         List<Item> items = targetPage.getItems();
+        System.out.println(items);
         if (items == null || items.isEmpty()) {
             return Collections.emptyList(); // 비어있다면 빈 리스트 반환
         } else {
@@ -135,13 +136,13 @@ public class PageService {
                 itemRepository.save(item);
 
 
-                dto.setItemId(item.getItemId());
+
                 String title=dto.getSticker().getTitle();
 
                 if(!stickerRepository.existsByTitle(title)) {
 
                     stickerItem = new StickerItem();
-                    stickerItem.setItemId(item.getItemId());
+//                    stickerItem.setItemId(item.getItemId());
                     stickerItem.setTitle(dto.getSticker().getTitle());
                     stickerItem.setSrc(dto.getSticker().getSrc());
                     stickerItem.setAlt(dto.getSticker().getAlt());
