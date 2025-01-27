@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static jpabasic.inspacebe.dto.item.ArchiveRequestDto.toStickerRequestDto;
 
@@ -51,41 +52,38 @@ public class PageService {
     }
 
 
-    // 페이지 조회
     @Transactional
     public List<ArchiveRequestDto> getPage(Integer spaceId, int pageNumber) {
         // Space 조회
+        System.out.println("Received spaceId: " + spaceId);
+
         Space space = spaceRepository.findById(spaceId)
+
                 .orElseThrow(() -> new IllegalArgumentException("Space not found"));
+        System.out.println(spaceId);
+
 
         // Space에 포함된 Page 리스트 조회
         List<Page> pages = space.getPages();
-        Page targetPage=null;
 
-        for(Page page : pages){
-            if(page.getPageNumber() == pageNumber){
-                targetPage = page;
-                break;
-            }
-        }
-        Integer pageId= targetPage.getPageId();
-
-        Page page = pageRepository.findById(pageId)
+        // 페이지 찾기
+        Page targetPage = pages.stream()
+                .filter(page -> page.getPageNumber() == pageNumber)
+                .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Page not found"));
 
-
-        List<Item> items=page.getItems();
-        if(items==null||items.isEmpty()){
-            return Collections.emptyList();
-        }else {
+        // Page에서 Item들을 가져오기
+        List<Item> items = targetPage.getItems();
+        if (items == null || items.isEmpty()) {
+            return Collections.emptyList(); // 비어있다면 빈 리스트 반환
+        } else {
             // Item을 ArchiveRequestDto로 변환하여 반환
             return items.stream()
                     .map(ArchiveRequestDto::toArchiveDto)
-                    .toList();
+                    .collect(Collectors.toList());
         }
-
-
     }
+
 
 
     //아이템 페이지(아카이브)에 등록 //pageNum 수정 필요.

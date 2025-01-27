@@ -32,7 +32,7 @@ public class PageController {
     @Operation(summary="페이지 조회")
     public ResponseEntity<?> getPage(@RequestParam("space_id") Integer space_id,@RequestParam("pageNum") int pageNum) {
         try{
-            List<ArchiveRequestDto> items=pageService.getPage(pageNum,space_id);
+            List<ArchiveRequestDto> items=pageService.getPage(space_id,pageNum);
 
             //빈 배열도 정상 응답으로 처리
             return ResponseEntity.ok(items);
