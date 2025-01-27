@@ -241,7 +241,12 @@ public class ItemService {
                     .filter(item -> item.getCtype() == CType.MUSIC)
                     .collect(Collectors.toList());
 
-        } else { // 기본적으로 IMAGE 카테고리
+        }else if(category.equals("STICKER")){
+            filteredItems = items.stream()
+                    .filter(item -> item.getCtype() == CType.STICKER)
+                    .collect(Collectors.toList());
+
+        }else { // 기본적으로 IMAGE 카테고리
             filteredItems = items.stream()
                     .filter(item -> item.getCtype() == CType.IMAGE)
                     .filter(item -> !item.getIsUploaded())

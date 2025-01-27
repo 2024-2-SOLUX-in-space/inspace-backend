@@ -141,6 +141,8 @@ public class PageService {
 
         Page page=pageRepository.findById(pageId)
                 .orElseThrow(()->new RuntimeException("Page not found with id: " + pageId));
+        User user=page.getUser();
+        Space space=page.getSpace();
 
         for(ArchiveRequestDto dto : dtoList) {
 
@@ -152,7 +154,8 @@ public class PageService {
                 Item item = new Item();
                 StickerItem stickerItem;
 
-
+                item.setUser(user);
+                item.setSpace(space);
                 item.setPage(page);
                 item.setCtype(CType.STICKER);
                 item.setPositionX(dto.getPositionX());
