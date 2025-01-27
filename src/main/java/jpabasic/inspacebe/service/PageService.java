@@ -102,36 +102,6 @@ public class PageService {
         }
     }
 
-    //아카이브에 스티커 등록 전 stickerItem entity 생성
-    @Transactional
-    public List<ArchiveRequestStickerDto> postStickerItem (List<ArchiveRequestDto> dtoList) {
-
-        List<ArchiveRequestStickerDto> stickers = new ArrayList<>();
-
-        for(ArchiveRequestDto dto : dtoList) {
-            if(dto.getCtype().equals(CType.STICKER)){
-                String title=dto.getTitle();
-
-                if(!stickerRepository.existsByTitle(title)) {
-
-                    StickerItem stickerItem = new StickerItem();
-
-                    stickerItem.setTitle(dto.getSticker().getTitle());
-                    stickerItem.setSrc(dto.getSticker().getSrc());
-                    stickerItem.setAlt(dto.getSticker().getAlt());
-                    stickerItem.setColor(dto.getSticker().getColor());
-                    stickerRepository.save(stickerItem);
-
-                }
-
-
-                ArchiveRequestStickerDto stickerDto=toStickerRequestDto(dto);
-                stickers.add(stickerDto); // 리스트에 추가
-            }
-        }
-
-        return stickers;
-    }
 
     //아카이브에 스티커 등록 : Item entity 생성
     @Transactional

@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
@@ -93,34 +94,33 @@ public class SpaceService {
 
 
     @Transactional
-    public ResponseEntity<SpaceDto> updateSpace(int spaceId, SpaceDto dto) {
+    public ResponseEntity<SpaceDto> updateSpace(Integer spaceId, Map<String,Object> updates) {
         Space space = spaceRepository.findById(spaceId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 공간입니다."));
+        System.out.println(updates.get("isPublic"));
+        System.out.println(updates.get("isPrimary"));
 
-        // 공간의 값이 변경되었을 때만 업데이트
-        if (!dto.getSname().equals(space.getSname())) space.setSname(dto.getSname());
-        if (dto.getSthumb() != space.getSthumb()) space.setSthumb(dto.getSthumb());
-        if (!dto.getIsPublic().equals(space.getIsPublic())) space.setIsPublic(dto.getIsPublic());
+        // isPublic 인 경우
+        String key=updates.keySet().iterator().next();
+        if("isPublic".equals(key)) {
+            space.setIsPublic((Boolean) updates.get("isPublic"));
 
-        //대표공간은 1개만 존재할 수 있다는 로직
-        User user = space.getUser();
-        List<Space> spaceList = user.getSpaces();
-
-
-        if (!dto.getIsPrimary().equals(space.getIsPrimary() && dto.getIsPrimary())) {
+        }else {
+            //대표공간은 1개만 존재할 수 있다는 로직
+            User user = space.getUser();
+            List<Space> spaceList = user.getSpaces();
 
             for (Space s : spaceList) {
-                if (s.getIsPrimary()) {
+                if (s.getIsPrimary().equals(true)) {
                     s.setIsPrimary(false);
                     spaceRepository.save(s);
-                    break; // 더 이상 탐색하지 않아도 되므로 루프 종료
+                    
                 }
             }
 
             space.setIsPrimary(true);
-        }
 
-        // 저장 후 DTO로 변환하여 반환
+        }
         spaceRepository.save(space);
         return ResponseEntity.ok(SpaceDto.toDto(space));
     }

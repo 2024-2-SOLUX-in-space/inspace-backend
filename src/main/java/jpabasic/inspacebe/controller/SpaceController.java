@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
@@ -77,12 +78,12 @@ public class SpaceController {
 
 
 
-    @PutMapping("/spaces/{space_id}") //user_id통해 본인만 설정 변경할 수 있도록.
+    @PatchMapping("/spaces/{space_id}") //user_id통해 본인만 설정 변경할 수 있도록.
     @Operation(summary="공간 설정 변경")
-    public ResponseEntity<?> updateSpace(@PathVariable("space_id") Integer space_id,@Valid @RequestBody SpaceDto spaceDto) {
+    public ResponseEntity<?> updateSpace(@PathVariable("space_id") Integer space_id,@Valid @RequestBody Map<String,Object> updates) {
         SpaceDto space;
         try {
-            space = spaceService.updateSpace(space_id, spaceDto).getBody();
+            space = spaceService.updateSpace(space_id, updates).getBody();
         } catch (Exception e) {
             String message = "공간 수정에 실패했어요.";
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseMessage(message));
