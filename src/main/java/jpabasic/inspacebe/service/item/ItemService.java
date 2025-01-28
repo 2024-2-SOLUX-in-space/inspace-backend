@@ -228,7 +228,8 @@ public class ItemService {
 
         if (category.equals("USERIMAGE")) {
             filteredItems = items.stream()
-                    .filter(item -> item.getIsUploaded()) // isUploaded가 true인 항목만 필터링
+                    .filter(item->item.getCtype()==CType.IMAGE)
+                    .filter(Item::getIsUploaded) // isUploaded가 true인 항목만 필터링
                     .collect(Collectors.toList());
 
         } else if (category.equals("YOUTUBE")) {

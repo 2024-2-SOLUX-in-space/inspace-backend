@@ -25,6 +25,7 @@ public class ItemsDto {
     //Entity->toDto
     public static ItemsDto toDto(Item item) {
         return ItemsDto.builder()
+                .itemId(item.getItemId())
                 .title(item.getTitle())
                 .imageUrl(item.getImageUrl())
                 .ctype(item.getCtype())
