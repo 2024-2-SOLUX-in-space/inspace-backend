@@ -20,6 +20,7 @@ bin/
 ### IntelliJ IDEA ###
 src/main/resources/application.properties
 inspace-d2239-firebase-adminsdk-1zvtd-f59c6811fa.json
+/src/main/resources/firebase-key.json
 firebase-key.json
 .idea
 *.iws
