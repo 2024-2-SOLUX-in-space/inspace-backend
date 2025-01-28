@@ -129,8 +129,8 @@ public class ItemService {
     public void registerItem(ItemRequestDto itemRequestDto, String query) {
         // 필수 입력값 검증
         if (itemRequestDto.getItemId() == null || itemRequestDto.getUid() == null ||
-                itemRequestDto.getSpaceId() == null || itemRequestDto.getPageId() == null) {
-            throw new IllegalArgumentException("ItemId, Uid, SpaceId, PageId는 필수 입력값입니다.");
+                itemRequestDto.getSpaceId() == null) {
+            throw new IllegalArgumentException("ItemId, Uid, SpaceId는 필수 입력값입니다.");
         }
 
         // Space와 User 검증
@@ -140,25 +140,12 @@ public class ItemService {
                 .orElseThrow(() -> new IllegalArgumentException("Invalid User ID"));
 
 
-        // Page 검증 및 설정
-        var page = pageRepository.findById(itemRequestDto.getPageId())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid Page ID"));
-        if (page.getPageNumber() == 0) {
-            page.setPageNumber(1); // 기본값 설정
-        }
-
-        // Page가 Space와 매핑되어 있는지 검증
-        if (!space.getPages().contains(page)) {
-            throw new IllegalArgumentException("The provided Page does not belong to the specified Space.");
-        }
-
         Item item;
 
         // DB에서 아이템 확인
         var existingItem = itemRepository.findById(itemRequestDto.getItemId());
         if (existingItem.isPresent()) {
             item = existingItem.get();
-            item.setPage(page);
             item.setSpace(space);
             item.setUser(user);
             item.setUid(user.getUserId());
@@ -187,7 +174,6 @@ public class ItemService {
             item.setContentsUrl((String) cachedData.get("contentUrl"));
             item.setIsUploaded(false);
             item.setSpace(space);
-            item.setPage(page);
             item.setUser(user);
             item.setUid(user.getUserId());
             System.out.println("Item UID: " + item.getUid());
@@ -196,11 +182,6 @@ public class ItemService {
             searchService.removeCachedItem(itemRequestDto.getItemId());
         }
 
-        // 디버깅: 저장 전 상태 확인
-        System.out.println("Item before save: " + item);
-        System.out.println("Item User: " + item.getUser());
-        System.out.println("Item Space: " + item.getSpace());
-        System.out.println("Item Page: " + item.getPage());
 
         itemRepository.save(item);
     }
