@@ -4,7 +4,6 @@ public class ItemRequestDto {
     private String itemId; // 검색 키
     private Integer uid;   // 사용자 ID
     private Integer spaceId; // 공간 ID
-    private Integer pageId;  // 페이지 ID
 
     // Getters and Setters
     public String getItemId() {
@@ -31,11 +30,4 @@ public class ItemRequestDto {
         this.spaceId = spaceId;
     }
 
-    public Integer getPageId() {
-        return pageId;
-    }
-
-    public void setPageId(Integer pageId) {
-        this.pageId = pageId;
-    }
 }
