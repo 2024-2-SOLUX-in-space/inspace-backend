@@ -6,8 +6,10 @@ import jakarta.validation.Valid;
 import jpabasic.inspacebe.converter.ResponseMessage;
 import jpabasic.inspacebe.dto.SpaceDto;
 import jpabasic.inspacebe.dto.item.ArchiveRequestDto;
+import jpabasic.inspacebe.dto.item.ArchiveRequestStickerDto;
 import jpabasic.inspacebe.dto.page.PageDto;
 import jpabasic.inspacebe.service.PageService;
+import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,7 +32,7 @@ public class PageController {
     @Operation(summary="페이지 조회")
     public ResponseEntity<?> getPage(@RequestParam("space_id") Integer space_id,@RequestParam("pageNum") int pageNum) {
         try{
-            List<ArchiveRequestDto> items=pageService.getPage(pageNum,space_id);
+            List<ArchiveRequestDto> items=pageService.getPage(space_id,pageNum);
 
             //빈 배열도 정상 응답으로 처리
             return ResponseEntity.ok(items);
@@ -55,6 +57,28 @@ public class PageController {
             return ResponseEntity.badRequest().body(message);
         }
         String message="페이지가 성공적으로 저장되었어요.";
+        return ResponseEntity.ok().body(message);
+    }
+
+
+    //아이템 페이지(아카이브)에 스티커 등록 시
+    @PostMapping("/sticker/{pageId}")
+    @Operation(summary="페이지(아카이브)에 스티커 등록")
+    public ResponseEntity<?> archiveSticker(@PathVariable Integer pageId, @RequestBody List<ArchiveRequestDto> archiveDtos) {
+        try{
+
+//            //stickerItem 생성
+//            List<ArchiveRequestStickerDto> stickers=pageService.postStickerItem(archiveDtos);
+//            System.out.println(stickers);
+
+            //Item 생성
+            pageService.archiveStickers(archiveDtos,pageId);
+
+        }catch(Exception e){
+            String message = "스티커 등록에 실패했어요. 에러: " + e.getMessage();
+            return ResponseEntity.badRequest().body(message);
+        }
+        String message="스티커가 성공적으로 저장되었어요.";
         return ResponseEntity.ok().body(message);
     }
 

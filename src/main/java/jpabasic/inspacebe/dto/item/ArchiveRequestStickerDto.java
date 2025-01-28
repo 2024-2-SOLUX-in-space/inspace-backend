@@ -1,7 +1,10 @@
 package jpabasic.inspacebe.dto.item;
 
 import io.swagger.v3.core.util.Json;
-import jpabasic.inspacebe.entity.*;
+import jpabasic.inspacebe.entity.CType;
+import jpabasic.inspacebe.entity.Item;
+import jpabasic.inspacebe.entity.Page;
+import jpabasic.inspacebe.entity.Space;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,13 +12,10 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class ArchiveRequestDto {
+public class ArchiveRequestStickerDto {
 
 
     private String itemId;
-    private String title; //sticker =null
-    private String imageUrl; //sticker=null
-    private String contentsUrl;//sticker=null
     private CType ctype;
     private Float positionX;
     private Float positionY;
@@ -23,7 +23,7 @@ public class ArchiveRequestDto {
     private Float width;
     private Float turnover;
     private Integer sequence;
-    private StickerDto sticker; //sticker 제외 나머지 item 은 null
+    private StickerDto sticker;
 
 //    private User
 
@@ -60,21 +60,6 @@ public class ArchiveRequestDto {
                 .width(item.getWidth())
                 .turnover(item.getTurnover())
                 .sequence(item.getSequence())
-                .sticker(item.getStickerItem() != null ? StickerItem.toDto(item.getStickerItem()) : null) // null 처리 추가
-                .build();
-    }
-
-    public static ArchiveRequestStickerDto toStickerRequestDto(ArchiveRequestDto dto) {
-        return ArchiveRequestStickerDto.builder()
-                .itemId(dto.getItemId())
-                .sticker(dto.getSticker())
-                .ctype(dto.getCtype())
-                .positionX(dto.getPositionX())
-                .positionY(dto.getPositionY())
-                .height(dto.getHeight())
-                .width(dto.getWidth())
-                .turnover(dto.getTurnover())
-                .sequence(dto.getSequence())
                 .build();
     }
 
