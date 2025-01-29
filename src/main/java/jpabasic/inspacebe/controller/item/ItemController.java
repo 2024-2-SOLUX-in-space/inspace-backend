@@ -106,7 +106,6 @@ public class ItemController {
         return items;
     }
 
-    @CurrentUser
     @PostMapping("/item/register")
     public ResponseEntity<?> registerItem(
             @CurrentUser User user,
