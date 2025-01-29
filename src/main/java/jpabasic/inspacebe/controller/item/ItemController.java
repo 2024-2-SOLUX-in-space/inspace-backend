@@ -91,8 +91,8 @@ public class ItemController {
     }
 
 
-    //저장소 조회(카테고리별 아이템 전체 조회) //아직 카테고리별 처리 안함.
-    //category -> userImage, image, youtube,music
+    //저장소 조회(카테고리별 아이템 전체 조회)
+    //category -> userImage, image, youtube,music,sticker
     @GetMapping("/category/space/{spaceId}")
     @Operation(summary = "저장소 조회(카테고리별 아이템 전체 조회)")
     public ResponseEntity<?> getItemsBySpace(@PathVariable("spaceId") Integer spaceId, @RequestParam("category") String category) {

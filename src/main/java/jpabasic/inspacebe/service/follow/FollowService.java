@@ -43,10 +43,10 @@ public class FollowService {
     public String unfollow(Integer followedId, User following) {
         User followed = userRepository.findById(followedId)
                 .orElseThrow(() -> new IllegalArgumentException("언팔로우할 사용자를 찾을 수 없습니다."));
-        if (!followRepository.existsByFollowingAndFollowed(following, followed)) {
-            return "팔로우하고 있지 않아 언팔로우할 수 없습니다.";
-        }
-        followRepository.delete(new Follow(followed, following));
+        Follow follow = followRepository.findByFollowingAndFollowed(following, followed)
+                .orElseThrow(() -> new IllegalArgumentException("팔로우하고 있지 않아 언팔로우할 수 없습니다."));
+
+        followRepository.delete(follow); // 영속 상태의 객체를 삭제
         return followed.getName() + "님을 언팔로우하였습니다.";
     }
 

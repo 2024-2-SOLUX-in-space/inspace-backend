@@ -12,6 +12,7 @@ import lombok.*;
 @NoArgsConstructor
 /// 저장소에서 각 아이템 조회 시
 public class ItemsDto {
+    private String itemId;
     private String title;
     private CType ctype;
     private String imageUrl;
@@ -24,6 +25,7 @@ public class ItemsDto {
     //Entity->toDto
     public static ItemsDto toDto(Item item) {
         return ItemsDto.builder()
+                .itemId(item.getItemId())
                 .title(item.getTitle())
                 .imageUrl(item.getImageUrl())
                 .ctype(item.getCtype())

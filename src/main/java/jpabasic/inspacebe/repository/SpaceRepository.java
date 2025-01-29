@@ -8,10 +8,10 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface SpaceRepository extends JpaRepository<Space, Integer> {
-    @Query("SELECT s FROM Space s WHERE s.spaceId = :spaceId")
-    Space findSpaceById(@Param("spaceId") Integer spaceId);
-
-    @Query("SELECT s FROM Space s JOIN FETCH s.pages WHERE s.spaceId = :spaceId")
-    Space findSpaceWithPages(@Param("spaceId") Integer spaceId);
+//    @Query("SELECT s FROM Space s WHERE s.spaceId = :spaceId")
+//    Space findSpaceById(@Param("spaceId") Integer spaceId);
+//
+//    @Query("SELECT s FROM Space s JOIN FETCH s.pages WHERE s.spaceId = :spaceId")
+//    Space findSpaceWithPages(@Param("spaceId") Integer spaceId);
 
 }

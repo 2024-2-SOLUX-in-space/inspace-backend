@@ -72,6 +72,7 @@ public class Item {
     private User user;
 
 
+
     @OneToOne(mappedBy = "item", cascade = CascadeType.ALL)
     private YoutubeItem youTubeItem;
 
@@ -80,6 +81,10 @@ public class Item {
 
     @OneToOne(mappedBy = "item", cascade = CascadeType.ALL)
     private MusicItem musicItem;
+
+    @ManyToOne
+    @JoinColumn(name="sticker_id")
+    private StickerItem stickerItem;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "page_id", referencedColumnName = "page_id")

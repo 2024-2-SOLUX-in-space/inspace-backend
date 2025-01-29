@@ -209,7 +209,8 @@ public class ItemService {
 
         if (category.equals("USERIMAGE")) {
             filteredItems = items.stream()
-                    .filter(item -> item.getIsUploaded()) // isUploaded가 true인 항목만 필터링
+                    .filter(item->item.getCtype()==CType.IMAGE)
+                    .filter(Item::getIsUploaded) // isUploaded가 true인 항목만 필터링
                     .collect(Collectors.toList());
 
         } else if (category.equals("YOUTUBE")) {
@@ -222,7 +223,12 @@ public class ItemService {
                     .filter(item -> item.getCtype() == CType.MUSIC)
                     .collect(Collectors.toList());
 
-        } else { // 기본적으로 IMAGE 카테고리
+        }else if(category.equals("STICKER")){
+            filteredItems = items.stream()
+                    .filter(item -> item.getCtype() == CType.STICKER)
+                    .collect(Collectors.toList());
+
+        }else { // 기본적으로 IMAGE 카테고리
             filteredItems = items.stream()
                     .filter(item -> item.getCtype() == CType.IMAGE)
                     .filter(item -> !item.getIsUploaded())
