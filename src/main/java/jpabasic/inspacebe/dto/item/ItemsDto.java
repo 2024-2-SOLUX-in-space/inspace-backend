@@ -18,6 +18,7 @@ public class ItemsDto {
     private String imageUrl;
     private Float height;
     private Float width;
+    private Boolean isUploaded;
 
     public ItemsDto(Item item) {
     }
@@ -31,6 +32,7 @@ public class ItemsDto {
                 .ctype(item.getCtype())
                 .height(item.getHeight())
                 .width(item.getWidth())
+                .isUploaded(item.getIsUploaded())
                 .build();
 
     }
