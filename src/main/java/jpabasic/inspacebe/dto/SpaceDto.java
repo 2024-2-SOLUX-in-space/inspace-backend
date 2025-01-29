@@ -17,7 +17,7 @@ public class SpaceDto {
     private Integer spaceId;
     private String sname;
     private int sthumb;
-    private Boolean isPrimary = false;
+    private Boolean isPrimary;
     private Boolean isPublic;
 
 
