@@ -126,17 +126,17 @@ public class ItemService {
 
     //아이템 등록
     @Transactional
-    public void registerItem(ItemRequestDto itemRequestDto, String query) {
+    public void registerItem(Integer userId, ItemRequestDto itemRequestDto, String query) {
         // 필수 입력값 검증
-        if (itemRequestDto.getItemId() == null || itemRequestDto.getUid() == null ||
+        if (itemRequestDto.getItemId() == null ||
                 itemRequestDto.getSpaceId() == null) {
-            throw new IllegalArgumentException("ItemId, Uid, SpaceId는 필수 입력값입니다.");
+            throw new IllegalArgumentException("ItemId, SpaceId는 필수 입력값입니다.");
         }
 
         // Space와 User 검증
         var space = spaceRepository.findById(itemRequestDto.getSpaceId())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid Space ID"));
-        var user = userRepository.findById(itemRequestDto.getUid())
+        var user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid User ID"));
 
 
@@ -148,7 +148,7 @@ public class ItemService {
             item = existingItem.get();
             item.setSpace(space);
             item.setUser(user);
-            item.setUid(user.getUserId());
+            item.setUid(userId);
             System.out.println("Item UID: " + item.getUid());
         } else {
             var cachedData = searchService.getCrawledItemCache(itemRequestDto.getItemId())
@@ -175,7 +175,7 @@ public class ItemService {
             item.setIsUploaded(false);
             item.setSpace(space);
             item.setUser(user);
-            item.setUid(user.getUserId());
+            item.setUid(userId);
             System.out.println("Item UID: " + item.getUid());
 
 
