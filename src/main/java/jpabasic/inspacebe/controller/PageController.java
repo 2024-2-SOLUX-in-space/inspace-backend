@@ -47,7 +47,7 @@ public class PageController {
 
 
     //아이템 페이지(아카이브)에 등록 //pageId 할당-등록 시
-    @PutMapping("/{pageId}")
+    @PutMapping("")
     @Operation(summary="페이지(아카이브)에 아이템 등록/수정")
     public ResponseEntity<?> archiveItems(@RequestParam("space_id") Integer space_id,@RequestParam("pageNum") int pageNum, @RequestBody List<ArchiveRequestDto> archiveDtos) {
         try{
