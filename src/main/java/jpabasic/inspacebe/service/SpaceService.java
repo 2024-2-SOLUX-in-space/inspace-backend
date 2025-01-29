@@ -42,15 +42,17 @@ public class SpaceService {
         if (spaces.isEmpty()) {
             dto.setIsPrimary(true);
         } else {
-            for (Space target : spaces) {
-                if (target.getIsPrimary().equals(true)) {
-                    target.setIsPrimary(false);
-                    spaceRepository.save(target);
-                    System.out.println("다른거 false 처리하고 true처리함");
-                    break;
+            if(dto.getIsPrimary()) {
+                for (Space target : spaces) {
+                    if (target.getIsPrimary().equals(true)) {
+                        target.setIsPrimary(false);
+                        spaceRepository.save(target);
+                        System.out.println("다른거 false 처리하고 true처리함");
+                        break;
+                    }
                 }
+                dto.setIsPrimary(true);
             }
-            dto.setIsPrimary(true);
         }
 
 
