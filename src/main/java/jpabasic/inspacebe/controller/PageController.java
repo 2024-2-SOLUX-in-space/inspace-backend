@@ -49,9 +49,9 @@ public class PageController {
     //아이템 페이지(아카이브)에 등록 //pageId 할당-등록 시
     @PutMapping("/{pageId}")
     @Operation(summary="페이지(아카이브)에 아이템 등록/수정")
-    public ResponseEntity<?> archiveItems(@PathVariable Integer pageId, @RequestBody List<ArchiveRequestDto> archiveDtos) {
+    public ResponseEntity<?> archiveItems(@RequestParam("space_id") Integer space_id,@RequestParam("pageNum") int pageNum, @RequestBody List<ArchiveRequestDto> archiveDtos) {
         try{
-            pageService.archiveItems(pageId,archiveDtos);
+            pageService.archiveItems(space_id,pageNum,archiveDtos);
         }catch(Exception e){
             String message="아이템 등록에 실패했어요. 다시 시도해주세요.";
             return ResponseEntity.badRequest().body(message);
@@ -62,9 +62,9 @@ public class PageController {
 
 
     //아이템 페이지(아카이브)에 스티커 등록 시
-    @PostMapping("/sticker/{pageId}")
+    @PostMapping("/sticker}")
     @Operation(summary="페이지(아카이브)에 스티커 등록")
-    public ResponseEntity<?> archiveSticker(@PathVariable Integer pageId, @RequestBody List<ArchiveRequestDto> archiveDtos) {
+    public ResponseEntity<?> archiveSticker(@RequestParam("space_id") Integer space_id,@RequestParam("pageNum") int pageNum, @RequestBody List<ArchiveRequestDto> archiveDtos) {
         try{
 
 //            //stickerItem 생성
@@ -72,7 +72,7 @@ public class PageController {
 //            System.out.println(stickers);
 
             //Item 생성
-            pageService.archiveStickers(archiveDtos,pageId);
+            pageService.archiveStickers(space_id,pageNum,archiveDtos);
 
         }catch(Exception e){
             String message = "스티커 등록에 실패했어요. 에러: " + e.getMessage();

@@ -87,17 +87,33 @@ public class PageService {
 
 
 
-    //아이템 페이지(아카이브)에 등록 //pageNum 수정 필요.
+    //아이템 페이지(아카이브)에 등록
     @Transactional
-    public void archiveItems (Integer pageId,List<ArchiveRequestDto> dtoList) {
+    public void archiveItems (Integer spaceId, int pageNumber,List<ArchiveRequestDto> dtoList) {
 
-        Page page= pageRepository.findById(pageId)
-                .orElseThrow(() -> new RuntimeException("Page not found with id: " + pageId));
+        // Space 조회
+        System.out.println("Received spaceId: " + spaceId);
+
+        Space space = spaceRepository.findById(spaceId)
+
+                .orElseThrow(() -> new IllegalArgumentException("Space not found"));
+        System.out.println(spaceId);
+
+
+        // Space에 포함된 Page 리스트 조회
+        List<Page> pages = space.getPages();
+
+        // 페이지 찾기
+        Page targetPage = pages.stream()
+                .filter(page -> page.getPageNumber() == pageNumber)
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Page not found"));
+
 
 
         for(ArchiveRequestDto dto : dtoList) {
             Item item= ArchiveRequestDto.toEntity(dto);
-            item.setPage(page);
+            item.setPage(targetPage);
             itemRepository.save(item);
 
         }
@@ -106,12 +122,27 @@ public class PageService {
 
     //아카이브에 스티커 등록 : Item entity 생성
     @Transactional
-    public void archiveStickers(List<ArchiveRequestDto> dtoList,Integer pageId) {
+    public void archiveStickers(Integer spaceId, int pageNumber,List<ArchiveRequestDto> dtoList) {
 
-        Page page=pageRepository.findById(pageId)
-                .orElseThrow(()->new RuntimeException("Page not found with id: " + pageId));
-        User user=page.getUser();
-        Space space=page.getSpace();
+        // Space 조회
+        System.out.println("Received spaceId: " + spaceId);
+
+        Space space = spaceRepository.findById(spaceId)
+
+                .orElseThrow(() -> new IllegalArgumentException("Space not found"));
+        System.out.println(spaceId);
+
+
+        // Space에 포함된 Page 리스트 조회
+        List<Page> pages = space.getPages();
+
+        // 페이지 찾기
+        Page targetPage = pages.stream()
+                .filter(page -> page.getPageNumber() == pageNumber)
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Page not found"));
+        User user=targetPage.getUser();
+
 
         for(ArchiveRequestDto dto : dtoList) {
 
@@ -125,7 +156,7 @@ public class PageService {
 
                 item.setUser(user);
                 item.setSpace(space);
-                item.setPage(page);
+                item.setPage(targetPage);
                 item.setCtype(CType.STICKER);
                 item.setPositionX(dto.getPositionX());
                 item.setPositionY(dto.getPositionY());
