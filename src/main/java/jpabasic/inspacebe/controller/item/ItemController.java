@@ -1,11 +1,13 @@
 package jpabasic.inspacebe.controller.item;
 
 import io.swagger.v3.oas.annotations.Operation;
+import jpabasic.inspacebe.config.CurrentUser;
 import jpabasic.inspacebe.converter.ResponseMessage;
 import jpabasic.inspacebe.dto.SpaceDetailResponseDto;
 import jpabasic.inspacebe.dto.item.ItemRequestDto;
 import jpabasic.inspacebe.dto.item.ItemResponseDto;
 import jpabasic.inspacebe.dto.item.ItemsDto;
+import jpabasic.inspacebe.entity.User;
 import jpabasic.inspacebe.service.SpaceService;
 import jpabasic.inspacebe.service.item.ItemService;
 import org.springframework.http.HttpStatus;
@@ -104,14 +106,15 @@ public class ItemController {
         return items;
     }
 
-
-
+    @CurrentUser
     @PostMapping("/item/register")
     public ResponseEntity<?> registerItem(
+            @CurrentUser User user,
             @RequestBody ItemRequestDto itemRequestDto,
             @RequestParam("query") String query
     ) {
-        itemService.registerItem(itemRequestDto, query);
+        Integer userId = user.getUserId();
+        itemService.registerItem(userId, itemRequestDto, query);
         return ResponseEntity.ok("Item successfully registered.");
     }
 
