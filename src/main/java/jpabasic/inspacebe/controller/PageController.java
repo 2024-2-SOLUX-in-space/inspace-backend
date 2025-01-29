@@ -62,7 +62,7 @@ public class PageController {
 
 
     //아이템 페이지(아카이브)에 스티커 등록 시
-    @PostMapping("/sticker}")
+    @PostMapping("/sticker")
     @Operation(summary="페이지(아카이브)에 스티커 등록")
     public ResponseEntity<?> archiveSticker(@RequestParam("space_id") Integer space_id,@RequestParam("pageNum") int pageNum, @RequestBody List<ArchiveRequestDto> archiveDtos) {
         try{
