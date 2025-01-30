@@ -12,9 +12,12 @@ import lombok.*;
 @ToString
 public class ArchiveResponseDto {
 
+    private String itemId;
     private String title;
     private String imageUrl;
     private String contentsUrl;
+
+    private String userId;
     private CType ctype;
     private Float positionX;
     private Float positionY;
@@ -24,14 +27,14 @@ public class ArchiveResponseDto {
     private Integer sequence;
 
     //DTO->Entity
-    public static Item toEntity(ArchiveRequestDto archiveDto) {
+    public static Item toEntity(ArchiveResponseDto archiveDto) {
         return Item.builder()
-                .title(archiveDto.getTitle())
-                .imageUrl(archiveDto.getImageUrl())
-                .contentsUrl(archiveDto.getContentsUrl())
+                .itemId(archiveDto.getItemId())
+//                .title(archiveDto.getTitle())
+//                .imageUrl(archiveDto.getImageUrl())
+//                .contentsUrl(archiveDto.getContentsUrl())
                 .ctype(archiveDto.getCtype())
-//                .spaceId(archiveDto.getSpaceId())
-//                .userId(archiveDto.getUserId())
+
                 .positionX(archiveDto.getPositionX())
                 .positionY(archiveDto.getPositionY())
                 .height(archiveDto.getHeight())

@@ -3,6 +3,8 @@ package jpabasic.inspacebe.service;
 import jakarta.transaction.Transactional;
 import jpabasic.inspacebe.dto.item.ArchiveRequestDto;
 import jpabasic.inspacebe.dto.item.ArchiveRequestStickerDto;
+import jpabasic.inspacebe.dto.item.ArchiveResponseDto;
+import jpabasic.inspacebe.dto.item.StickerDto;
 import jpabasic.inspacebe.entity.*;
 import jpabasic.inspacebe.repository.*;
 import org.springframework.stereotype.Service;
@@ -87,7 +89,7 @@ public class PageService {
 
 
 
-    //아이템 페이지(아카이브)에 등록
+    //아이템 페이지(아카이브)에 등록+수정..
     @Transactional
     public void archiveItems (Integer spaceId, int pageNumber,List<ArchiveRequestDto> dtoList) {
 
@@ -112,10 +114,35 @@ public class PageService {
 
 
         for(ArchiveRequestDto dto : dtoList) {
-            Item item= ArchiveRequestDto.toEntity(dto);
-            item.setPage(targetPage);
-            itemRepository.save(item);
+            //sticker경우 분리
+            if(dto.getCtype()==CType.STICKER){
+                //변경 전 기존 item의 stickerItem_id 가져옴.
+                Item beforeItem=itemRepository.findById(dto.getItemId())
+                        .orElseThrow(() -> new IllegalArgumentException("Item not found"));
+                StickerItem sticker=beforeItem.getStickerItem();
+                String itemId=beforeItem.getItemId();
 
+
+                ArchiveResponseDto stickerDto=ArchiveRequestDto.toResponseDto(dto);
+                Item item= ArchiveResponseDto.toEntity(stickerDto);
+                System.out.println();
+
+                item.setStickerItem(sticker);
+                item.setPage(targetPage);
+                item.setUser(space.getUser());
+                item.setSpace(space);
+
+//                StickerItem stickerItem=stickerRepository.findById(stickerId)
+//                                .orElseThrow(() -> new IllegalArgumentException("Sticker not found"));
+
+                itemRepository.save(item);
+            }else {
+                Item item = ArchiveRequestDto.toEntity(dto);
+                item.setPage(targetPage);
+                item.setUser(space.getUser());
+                item.setSpace(space);
+                itemRepository.save(item);
+            }
         }
     }
 

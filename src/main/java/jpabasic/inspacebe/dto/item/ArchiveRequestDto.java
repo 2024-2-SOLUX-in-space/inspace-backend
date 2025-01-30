@@ -78,6 +78,19 @@ public class ArchiveRequestDto {
                 .build();
     }
 
+    public static ArchiveResponseDto toResponseDto(ArchiveRequestDto dto) {
+        return ArchiveResponseDto.builder()
+                    .itemId(dto.getItemId())
+                    .ctype(dto.getCtype())
+                    .positionX(dto.getPositionX())
+                    .positionY(dto.getPositionY())
+                    .height(dto.getHeight())
+                    .width(dto.getWidth())
+                    .turnover(dto.getTurnover())
+                    .sequence(dto.getSequence())
+                    .build();
+    }
+
 
 
 
