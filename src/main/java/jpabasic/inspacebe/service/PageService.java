@@ -113,36 +113,28 @@ public class PageService {
 
 
 
-        for(ArchiveRequestDto dto : dtoList) {
-            //sticker경우 분리
-            if(dto.getCtype()==CType.STICKER){
-                //변경 전 기존 item의 stickerItem_id 가져옴.
-                Item beforeItem=itemRepository.findById(dto.getItemId())
-                        .orElseThrow(() -> new IllegalArgumentException("Item not found"));
-                StickerItem sticker=beforeItem.getStickerItem();
-                String itemId=beforeItem.getItemId();
+        for (ArchiveRequestDto dto : dtoList) {
+            Item beforeItem = itemRepository.findById(dto.getItemId())
+                    .orElseThrow(() -> new IllegalArgumentException("Item not found"));
 
+            Item item = ArchiveRequestDto.toEntity(dto);
+            item.setPage(targetPage);
+            item.setUser(space.getUser());
+            item.setSpace(space);
 
-                ArchiveResponseDto stickerDto=ArchiveRequestDto.toResponseDto(dto);
-                Item item= ArchiveResponseDto.toEntity(stickerDto);
-                System.out.println();
-
-                item.setStickerItem(sticker);
-                item.setPage(targetPage);
-                item.setUser(space.getUser());
-                item.setSpace(space);
-
-//                StickerItem stickerItem=stickerRepository.findById(stickerId)
-//                                .orElseThrow(() -> new IllegalArgumentException("Sticker not found"));
-
-                itemRepository.save(item);
-            }else {
-                Item item = ArchiveRequestDto.toEntity(dto);
-                item.setPage(targetPage);
-                item.setUser(space.getUser());
-                item.setSpace(space);
-                itemRepository.save(item);
+            switch (dto.getCtype()) {
+                case STICKER -> {
+                    item.setStickerItem(beforeItem.getStickerItem());
+                }
+                case IMAGE -> {
+                    item.setIsUploaded(beforeItem.getIsUploaded());
+                }
+                default -> {
+                    item.setIsUploaded(false);
+                }
             }
+
+            itemRepository.save(item);
         }
     }
 
