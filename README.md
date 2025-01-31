@@ -7,7 +7,7 @@
 |----|---|
 |강민서|ERD 설계<br>API 명세서 작성<br>공간 관련 기능 개발<br>페이지 관련 기능 개발<br>아이템 관련 기능 개발|
 |김소영|ERD 설계<br>API 명세서 작성<br>스터디 API 개발<br>공지사항 API 개발<br>캘린더 일정관리 API 개발<br>멤버 리뷰 API 개발<br>주차별 스터디 점수 및 관리 API 개발|
-|윤서진|ERD 설계<br>API 명세서 작성<br>Spring Security JWT<br> 회원가입, 로그인 API 개발<br>댓글 API 개발<br>자동화 배포|
+|윤서진|ERD 설계<br>API 명세서 작성<br>팔로우 기능 개발<br>SSE 실시간 알림 기능 개발<br>Dockerize<br>AWS EC2 자동화 배포|
 |조영서|ERD 설계<br>API 명세서 작성<br>Spring Security JWT<br> 회원가입, 로그인 API 개발<br>댓글 API 개발<br>자동화 배포|
 
 
