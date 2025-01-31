@@ -8,6 +8,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 
+import java.util.*;
+
 
 @RestController
 @RequestMapping("/api/proxy")
@@ -30,34 +32,64 @@ public class ProxyController {
 
     @GetMapping("/search")
     public ResponseEntity<?> proxyGet(
-            @RequestParam("query") String query,
-            @RequestParam(value = "filter", required = false) String filter) {
+            @RequestParam("service") String services,
+            @RequestParam Map<String, String> queryParams) {
 
-        String targetUrl = getTargetUrl(filter, query);
+        List<String> urls = getTargetUrls(services, queryParams);
+        Map<String, Object> combinedResults = new HashMap<>();
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Accept", "application/json");
+        for (String url : urls) {
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Accept", "application/json");
 
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-        ResponseEntity<String> response = restTemplate.exchange(targetUrl, HttpMethod.GET, entity, String.class);
+            HttpEntity<String> entity = new HttpEntity<>(headers);
+            ResponseEntity<Map> response = restTemplate.exchange(url, HttpMethod.GET, entity, Map.class);
 
-        return ResponseEntity.ok(response.getBody());
+            if (response.getBody() != null) {
+                combinedResults.putAll(response.getBody());  // API 결과 합치기
+            }
+        }
+
+        return ResponseEntity.ok(combinedResults);
     }
 
-    private String getTargetUrl(String filter, String query) {
-        String baseUrl;
-        switch (filter) {
-            case "image":
-                baseUrl = "https://www.googleapis.com/customsearch/v1";
-                return baseUrl + "?q=" + query + "&cx=" + googleSearchEngineId + "&key=" + googleApiKey + "&searchType=image";
-            case "youtube":
-                baseUrl = "https://www.googleapis.com/youtube/v3/search";
-                return baseUrl + "?part=snippet&q=" + query + "&type=video&maxResults=10&key=" + youtubeApiKey;
-            case "music":
-                baseUrl = "https://api.spotify.com/v1/search";
-                return baseUrl + "?q=" + query + "&type=track&limit=5";
-            default:
-                throw new IllegalArgumentException("지원하지 않는 필터입니다.");
+    private List<String> getTargetUrls(String services, Map<String, String> queryParams) {
+        List<String> urls = new ArrayList<>();
+        String[] serviceArray = services.split(",");
+
+        for (String service : serviceArray) {
+            String baseUrl;
+            Map<String, String> params = new HashMap<>(queryParams);
+
+            switch (service.trim()) {
+                case "google":
+                    baseUrl = "https://www.googleapis.com/customsearch/v1";
+                    params.put("cx", googleSearchEngineId);
+                    params.put("key", googleApiKey);
+                    break;
+                case "youtube":
+                    baseUrl = "https://www.googleapis.com/youtube/v3/search";
+                    params.put("part", "snippet");
+                    params.put("maxResults", "10");
+                    params.put("key", youtubeApiKey);
+                    break;
+                case "spotify":
+                    baseUrl = "https://api.spotify.com/v1/search";
+                    params.put("type", "track");
+                    params.put("limit", "5");
+                    break;
+                default:
+                    continue;
+            }
+
+            // URL 생성
+            StringBuilder url = new StringBuilder(baseUrl + "?");
+            for (Map.Entry<String, String> entry : params.entrySet()) {
+                url.append(entry.getKey()).append("=").append(entry.getValue()).append("&");
+            }
+
+            urls.add(url.toString());
         }
+        return urls;
     }
 }
