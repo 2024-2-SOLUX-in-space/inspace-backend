@@ -17,7 +17,7 @@ public class JwtProvider {
         return Jwts.builder()
                 .setSubject(email)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // 1시간 후 만료
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24)) // 24시간 후 만료
                 .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
                 .compact();
     }
