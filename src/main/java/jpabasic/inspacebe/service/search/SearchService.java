@@ -20,6 +20,9 @@ public class SearchService {
 
     private final WebClient webClient;
 
+    @Value("${server.proxy-url}") // 프록시 서버 URL 추가
+    private String proxyUrl;
+
 
     private final Map<String, Item> cachedItems = new HashMap<>();
     private final Map<String, Map<String, Object>> crawledItemCache = new HashMap<>();
@@ -28,7 +31,7 @@ public class SearchService {
     public SearchService(ItemRepository itemRepository, SpaceRepository spaceRepository, WebClient.Builder webClientBuilder) {
         this.itemRepository = itemRepository;
         this.spaceRepository = spaceRepository;
-        this.webClient = webClientBuilder.build();
+        this.webClient = webClientBuilder.baseUrl(proxyUrl).build();
     }
 
     // Crawled 데이터를 위한 메서드
@@ -125,16 +128,9 @@ public class SearchService {
     }
 
     public List<Map<String, Object>> searchImages(String query) {
-        String url = String.format(
-                "https://www.googleapis.com/customsearch/v1?q=%s&cx=%s&key=%s&searchType=image",
-                query, searchEngineId, apiKey
-        );
+        String url = String.format("%s/api/proxy/search?service=google&query=%s", proxyUrl, query);
+        Map<String, Object> response = webClient.get().uri(url).retrieve().bodyToMono(Map.class).block();
 
-        Map<String, Object> response = webClient.get()
-                .uri(url)
-                .retrieve()
-                .bodyToMono(Map.class)
-                .block();
 
         List<Map<String, Object>> results = new ArrayList<>();
         if (response != null && response.containsKey("items")) {
@@ -161,16 +157,8 @@ public class SearchService {
     }
 
     public List<Map<String, Object>> searchYouTube(String query) {
-        String url = String.format(
-                "https://www.googleapis.com/youtube/v3/search?part=snippet&q=%s&type=video&maxResults=10&key=%s",
-                query, youtubeApiKey
-        );
-
-        Map<String, Object> response = webClient.get()
-                .uri(url)
-                .retrieve()
-                .bodyToMono(Map.class)
-                .block();
+        String url = String.format("%s/api/proxy/search?service=youtube&query=%s", proxyUrl, query);
+        Map<String, Object> response = webClient.get().uri(url).retrieve().bodyToMono(Map.class).block();
 
         List<Map<String, Object>> results = new ArrayList<>();
         if (response != null && response.containsKey("items")) {
@@ -288,15 +276,9 @@ public class SearchService {
     }
 
     public List<Map<String, Object>> searchSpotify(String query) {
-        String accessToken = getSpotifyAccessToken();
-        String url = String.format("https://api.spotify.com/v1/search?q=%s&type=track&limit=5", query);
+        String url = String.format("%s/api/proxy/search?service=spotify&query=%s", proxyUrl, query);
+        Map<String, Object> response = webClient.get().uri(url).retrieve().bodyToMono(Map.class).block();
 
-        Map<String, Object> response = webClient.get()
-                .uri(url)
-                .header("Authorization", "Bearer " + accessToken)
-                .retrieve()
-                .bodyToMono(Map.class)
-                .block();
 
         List<Map<String, Object>> results = new ArrayList<>();
         if (response != null && response.containsKey("tracks")) {
@@ -318,8 +300,6 @@ public class SearchService {
 
                 String uuid = UUID.randomUUID().toString();
                 trackData.put("itemId", uuid);
-
-                System.out.println("Generated track data: " + trackData);
 
                 crawledItemCache.put(uuid, trackData); // 캐시에 저장
 
