@@ -13,18 +13,7 @@
 
 <br>
 
-## 서비스 소개
 
-
-<br>
-
-
-## 기능 설명
-
-
-
-
-<br>
 
 ## 기술 스택
 
@@ -62,3 +51,5 @@
 <br>
 
 ## ERD
+<img src="https://github.com/user-attachments/assets/a0a714bb-8b49-4357-a839-e5fee3d1ff8f" />
+"
