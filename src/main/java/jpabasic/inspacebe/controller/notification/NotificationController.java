@@ -34,16 +34,6 @@ public class NotificationController {
             // ✅ 첫 번째 메시지 즉시 전송 (클라이언트가 연결 성공 확인)
             emitter.send(SseEmitter.event().name("init").data("Connected to SSE"));
 
-            // ✅ heartbeat(하트비트) 설정 (5초마다 'ping' 전송)
-            ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-            scheduler.scheduleAtFixedRate(() -> {
-                try {
-                    emitter.send(SseEmitter.event().name("heartbeat").data("ping"));
-                } catch (IOException e) {
-                    emitter.complete();
-                    scheduler.shutdown();
-                }
-            }, 5, 5, TimeUnit.SECONDS);
 
         } catch (IOException e) {
             emitter.complete();
