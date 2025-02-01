@@ -33,11 +33,10 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf().disable()
-                .cors()
-                .configurationSource(corsConfigurationSource())
+                .cors().configurationSource(corsConfigurationSource())
                 .and()
                 .authorizeHttpRequests()
-                .requestMatchers("/api/auth/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll() // 인증 없이 허용
+                .requestMatchers("/api/auth/**", "/swagger-ui/**", "/v3/api-docs/**",  "/api/search/results").permitAll() // 인증 없이 허용
                 .anyRequest().authenticated() // 나머지 요청은 인증 필요
                 .and()
                 .addFilterBefore(new JwtAuthenticationFilter(jwtProvider, userRepository), org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);

@@ -1,6 +1,7 @@
 package jpabasic.inspacebe.controller;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -53,6 +54,13 @@ public class ProxyController {
                 return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body("Proxy server error: " + e.getMessage());
             }
         }
+
+        // CORS 헤더 추가
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Access-Control-Allow-Origin", "http://localhost:3000"); // 특정 Origin만 허용
+        headers.add("Access-Control-Allow-Methods", "GET, POST, OPTIONS"); // 허용할 메서드 추가
+        headers.add("Access-Control-Allow-Headers", "*"); // 모든 헤더 허용
+        headers.add("Access-Control-Allow-Credentials", "true"); // 쿠키 및 인증 정보 허용
         return ResponseEntity.ok(combinedResults);
     }
 

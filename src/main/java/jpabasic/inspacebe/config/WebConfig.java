@@ -12,7 +12,7 @@ public class WebConfig {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/api/**")
+                registry.addMapping("/**")
                         .allowedOrigins("http://localhost:3000") // 프론트엔드 주소
                         .allowedMethods("GET", "POST", "PUT", "DELETE") // 허용할 HTTP 메서드
                         .allowCredentials(true); // 인증 요청 허용
