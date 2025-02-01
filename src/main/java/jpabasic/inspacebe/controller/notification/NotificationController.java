@@ -45,8 +45,6 @@ public class NotificationController {
                 .header("Pragma", "no-cache")
                 .header("Expires", "0")
                 .header("X-Accel-Buffering", "no") // Nginx에서 SSE 버퍼링 방지
-                .header("Access-Control-Allow-Origin", "*") // CORS 허용
-                .header("Access-Control-Allow-Credentials", "true") // 쿠키 허용 (필요할 경우)
                 .body(emitter);
     }
 
