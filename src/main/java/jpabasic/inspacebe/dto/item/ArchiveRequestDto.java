@@ -58,6 +58,7 @@ public class ArchiveRequestDto {
                 .positionX(item.getPositionX())
                 .positionY(item.getPositionY())
                 .width(item.getWidth())
+                .height(item.getHeight())
                 .turnover(item.getTurnover())
                 .sequence(item.getSequence())
                 .sticker(item.getStickerItem() != null ? StickerItem.toDto(item.getStickerItem()) : null) // null 처리 추가
