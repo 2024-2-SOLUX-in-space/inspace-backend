@@ -33,11 +33,10 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf().disable()
-                .cors()
-                .configurationSource(corsConfigurationSource())
+                .cors().configurationSource(corsConfigurationSource())
                 .and()
                 .authorizeHttpRequests()
-                .requestMatchers("/api/auth/**", "/swagger-ui/**", "/v3/api-docs/**", "/api/notifications/stream").permitAll() // 인증 없이 허용
+                .requestMatchers("/api/auth/**", "/swagger-ui/**", "/v3/api-docs/**", "/api/notifications/stream",  "/api/search/results").permitAll() // 인증 없이 허용
                 .anyRequest().authenticated() // 나머지 요청은 인증 필요
                 .and()
                 .addFilterBefore(new JwtAuthenticationFilter(jwtProvider, userRepository), org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
@@ -57,6 +56,7 @@ public class SecurityConfig {
         configuration.addAllowedMethod("*"); // 모든 HTTP 메서드 허용
         configuration.addAllowedHeader("*"); // 모든 헤더 허용
         configuration.setAllowCredentials(true); // 쿠키 허용
+        System.out.println("CORS configuration initialized: " + configuration); // CORS 설정 로그
         configuration.setExposedHeaders(Arrays.asList(
                 "Access-Control-Allow-Origin",
                 "Access-Control-Allow-Credentials"
