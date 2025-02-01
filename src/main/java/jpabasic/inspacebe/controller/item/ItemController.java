@@ -78,12 +78,11 @@ public class ItemController {
             }
 
             // 파일 업로드 및 DB 저장 처리
-            String fileUrl = itemService.uploadImageAndSaveTodb(file, spaceId, title);
+            Map<String,Object> result = itemService.uploadImageAndSaveTodb(file, spaceId, title);
+            result.put("message","이미지를 성공적으로 저장했어요.");
 
-            // 성공 응답
-            response.put("message", "이미지를 성공적으로 업로드했어요.");
-            response.put("fileUrl", fileUrl);
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(result);
+
         } catch (Exception e) {
             response.put("error", "알 수 없는 오류가 발생했습니다.");
             return ResponseEntity.status(500).body(response);
