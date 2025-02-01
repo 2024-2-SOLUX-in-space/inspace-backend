@@ -1,6 +1,7 @@
 package jpabasic.inspacebe.controller;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
@@ -37,9 +38,19 @@ public class ProxyController {
         Map<String, Object> combinedResults = new HashMap<>();
 
         for (String url : urls) {
-            ResponseEntity<Map> response = restTemplate.getForEntity(url, Map.class);
-            if (response.getBody() != null) {
-                combinedResults.putAll(response.getBody());
+            System.out.println("Sending request to URL: " + url);
+            System.out.println("Request Headers: Authorization=" + queryParams.get("Authorization")); // 요청 헤더 로그
+            ResponseEntity<Map> response;
+            try {
+                response = restTemplate.getForEntity(url, Map.class);
+                System.out.println("Response from proxy: " + response.getStatusCode()); // 응답 상태 확인
+                if (response.getBody() != null) {
+                    combinedResults.putAll(response.getBody());
+                }
+            } catch (Exception e) {
+                System.err.println("Error while calling proxy URL: " + url);
+                e.printStackTrace();
+                return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body("Proxy server error: " + e.getMessage());
             }
         }
         return ResponseEntity.ok(combinedResults);

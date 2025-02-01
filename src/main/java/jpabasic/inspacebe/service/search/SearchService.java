@@ -129,7 +129,16 @@ public class SearchService {
 
     public List<Map<String, Object>> searchImages(String query) {
         String url = String.format("%s/api/proxy/search?service=google&query=%s", proxyUrl, query);
-        Map<String, Object> response = webClient.get().uri(url).retrieve().bodyToMono(Map.class).block();
+        Map<String, Object> response;
+
+        try {
+            response = webClient.get().uri(url).retrieve().bodyToMono(Map.class).block();
+            System.out.println("Response from Proxy (Images): " + response); // 응답 로그 추가
+        } catch (Exception e) {
+            System.err.println("Error during Proxy request (Images): " + e.getMessage());
+            e.printStackTrace();
+            return Collections.emptyList(); // 에러 발생 시 빈 리스트 반환
+        }
 
 
         List<Map<String, Object>> results = new ArrayList<>();
@@ -158,8 +167,18 @@ public class SearchService {
 
     public List<Map<String, Object>> searchYouTube(String query) {
         String url = String.format("%s/api/proxy/search?service=youtube&query=%s", proxyUrl, query);
-        Map<String, Object> response = webClient.get().uri(url).retrieve().bodyToMono(Map.class).block();
 
+        System.out.println("Proxy URL (YouTube): " + url);
+
+        Map<String, Object> response;
+        try {
+            response = webClient.get().uri(url).retrieve().bodyToMono(Map.class).block();
+            System.out.println("Response from Proxy (YouTube): " + response); // 응답 로그 추가
+        } catch (Exception e) {
+            System.err.println("Error during Proxy request (YouTube): " + e.getMessage());
+            e.printStackTrace();
+            return Collections.emptyList(); // 에러 발생 시 빈 리스트 반환
+        }
         List<Map<String, Object>> results = new ArrayList<>();
         if (response != null && response.containsKey("items")) {
             List<Map<String, Object>> items = (List<Map<String, Object>>) response.get("items");
@@ -277,8 +296,17 @@ public class SearchService {
 
     public List<Map<String, Object>> searchSpotify(String query) {
         String url = String.format("%s/api/proxy/search?service=spotify&query=%s", proxyUrl, query);
-        Map<String, Object> response = webClient.get().uri(url).retrieve().bodyToMono(Map.class).block();
+        System.out.println("Proxy URL (Spotify): " + url); // 요청 URL 로그 추가
 
+        Map<String, Object> response;
+        try {
+            response = webClient.get().uri(url).retrieve().bodyToMono(Map.class).block();
+            System.out.println("Response from Proxy (Spotify): " + response); // 응답 로그 추가
+        } catch (Exception e) {
+            System.err.println("Error during Proxy request (Spotify): " + e.getMessage());
+            e.printStackTrace();
+            return Collections.emptyList(); // 에러 발생 시 빈 리스트 반환
+        }
 
         List<Map<String, Object>> results = new ArrayList<>();
         if (response != null && response.containsKey("tracks")) {
