@@ -14,8 +14,8 @@ public class WebClientConfig {
     @Bean
     public WebClient.Builder webClientBuilder() {
         HttpClient httpClient = HttpClient.create()
-                .responseTimeout(Duration.ofSeconds(10))  // Read timeout 설정 (기본 10초)
-                .option(io.netty.channel.ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000);  // Connect timeout 설정 (기본 5초)
+                .responseTimeout(Duration.ofSeconds(30))  // Read timeout 설정 (기본 30초)
+                .option(io.netty.channel.ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000);  // Connect timeout 설정 (기본 10초)
 
         return WebClient.builder()
                 .clientConnector(new ReactorClientHttpConnector(httpClient));
