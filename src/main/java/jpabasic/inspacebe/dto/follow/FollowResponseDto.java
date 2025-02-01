@@ -7,7 +7,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class FollowResponseDto {
-    public Integer followingId;
+    public Integer followId;
     public String name;
 
     public  static FollowResponseDto fromEntity(User followingUser) {

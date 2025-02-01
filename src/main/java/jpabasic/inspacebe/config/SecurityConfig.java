@@ -36,7 +36,7 @@ public class SecurityConfig {
                 .cors().configurationSource(corsConfigurationSource())
                 .and()
                 .authorizeHttpRequests()
-                .requestMatchers("/api/auth/**", "/swagger-ui/**", "/v3/api-docs/**",  "/api/search/results").permitAll() // 인증 없이 허용
+                .requestMatchers("/api/auth/**", "/swagger-ui/**", "/v3/api-docs/**", "/api/notifications/stream",  "/api/search/results").permitAll() // 인증 없이 허용
                 .anyRequest().authenticated() // 나머지 요청은 인증 필요
                 .and()
                 .addFilterBefore(new JwtAuthenticationFilter(jwtProvider, userRepository), org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
@@ -52,13 +52,15 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000")); // 허용할 Origin
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://3.35.10.158:8080")); // 허용할 Origin
         configuration.addAllowedMethod("*"); // 모든 HTTP 메서드 허용
         configuration.addAllowedHeader("*"); // 모든 헤더 허용
         configuration.setAllowCredentials(true); // 쿠키 허용
-
         System.out.println("CORS configuration initialized: " + configuration); // CORS 설정 로그
-
+        configuration.setExposedHeaders(Arrays.asList(
+                "Access-Control-Allow-Origin",
+                "Access-Control-Allow-Credentials"
+        ));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration); // 모든 경로에 CORS 설정 적용
         return source;

@@ -7,8 +7,11 @@ import jpabasic.inspacebe.entity.User;
 import jpabasic.inspacebe.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +30,7 @@ public class NotificationService {
 
     // SSE 구독 생성
     public SseEmitter createEmitter(Integer userId) {
-        SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
+        SseEmitter emitter = new SseEmitter(3600L * 1000L);
         userEmitters.put(userId, emitter);
 
         emitter.onCompletion(() -> userEmitters.remove(userId));
@@ -35,6 +38,18 @@ public class NotificationService {
         emitter.onError((e) -> userEmitters.remove(userId));
 
         return emitter;
+    }
+
+    @Scheduled(fixedRate = 5000) // 5초마다 실행
+    public void sendHeartbeat() {
+        userEmitters.forEach((userId, emitter) -> {
+            try {
+                emitter.send(SseEmitter.event().name("heartbeat").data("ping"));
+            } catch (IOException e) {
+                emitter.complete();
+                userEmitters.remove(userId);
+            }
+        });
     }
 
     // 팔로우 알림 전송
@@ -54,7 +69,6 @@ public class NotificationService {
         sendRealTimeNotification(receiver.getUserId(), notification);
     }
 
-    // 실시간 알림 전송
     private void sendRealTimeNotification(Integer userId, Notification notification) {
         SseEmitter emitter = userEmitters.get(userId);
         if (emitter != null) {
@@ -66,11 +80,14 @@ public class NotificationService {
                                     "message", notification.getMessage(),
                                     "isRead", notification.getIsRead()
                             )));
-                } catch (Exception e) {
+                } catch (IOException e) {
                     log.error("Failed to send notification to userId: " + userId, e);
-                    userEmitters.remove(userId); // 실패 시 Emitter 제거
+                    emitter.complete();
+                    userEmitters.remove(userId);
                 }
             });
+        } else {
+            log.warn("No active SSE connection for userId: " + userId + ". Notification saved but not delivered in real-time.");
         }
     }
 
