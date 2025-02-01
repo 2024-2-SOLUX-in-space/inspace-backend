@@ -14,11 +14,13 @@ import jpabasic.inspacebe.repository.SpaceRepository;
 import jpabasic.inspacebe.repository.UserRepository;
 import jpabasic.inspacebe.service.StorageService;
 import jpabasic.inspacebe.service.search.SearchService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -35,7 +37,7 @@ public class ItemService {
 
     private final StorageService storageService;
 
-
+    @Autowired
     public ItemService(ItemRepository itemRepository, SearchService searchService, SpaceRepository spaceRepository, UserRepository userRepository, PageRepository pageRepository, StorageService storageService) {
         this.itemRepository = itemRepository;
         this.searchService = searchService;
@@ -260,7 +262,7 @@ public class ItemService {
 
     @Transactional
     //유저의 사진을 클라우드 스토리지에 업로드 -> 클라우드 저장 경로를 db에 저장
-    public String uploadImageAndSaveTodb(MultipartFile file, Integer spaceId, String title) {
+    public Map<String,Object> uploadImageAndSaveTodb(MultipartFile file, Integer spaceId, String title) {
         Space space = spaceRepository.findById(spaceId)
                 .orElseThrow(() -> new IllegalArgumentException("Space not found"));
 
@@ -284,9 +286,15 @@ public class ItemService {
         item.setContentsUrl(contentsUrl);//삭제 시 필요한 파일 경로
         item.setCtype(CType.IMAGE);
         item.setUid(space.getUser().getUserId());
+
+
         itemRepository.save(item);
 
-        return imageUrl;
+        Map<String,Object> response=new HashMap<>();
+        response.put("fileUrl",imageUrl);
+        response.put("itemId",item.getItemId());
+
+        return response;
 
     }
 
