@@ -7,11 +7,16 @@ import jpabasic.inspacebe.dto.notification.NotificationResponseDto;
 import jpabasic.inspacebe.entity.User;
 import jpabasic.inspacebe.service.Notification.NotificationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequiredArgsConstructor
@@ -22,9 +27,37 @@ public class NotificationController {
     private final NotificationService notificationService;
 
     @Operation(summary = "SSE 스트림 구독", description = "SSE를 이용하여 실시간 알림을 전송합니다. Swagger에선 테스트가 불가하니 postman을 이용하세요")
-    @GetMapping(path = "/stream")
-    public SseEmitter streamNotifications(@CurrentUser User currentUser) {
-        return notificationService.createEmitter(currentUser.getUserId());
+    @GetMapping(path = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public ResponseEntity<SseEmitter> streamNotifications(@CurrentUser User currentUser) {
+        SseEmitter emitter = notificationService.createEmitter(currentUser.getUserId());
+        try {
+            // ✅ 첫 번째 메시지 즉시 전송 (클라이언트가 연결 성공 확인)
+            emitter.send(SseEmitter.event().name("init").data("Connected to SSE"));
+
+            // ✅ heartbeat(하트비트) 설정 (5초마다 'ping' 전송)
+            ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+            scheduler.scheduleAtFixedRate(() -> {
+                try {
+                    emitter.send(SseEmitter.event().name("heartbeat").data("ping"));
+                } catch (IOException e) {
+                    emitter.complete();
+                    scheduler.shutdown();
+                }
+            }, 5, 5, TimeUnit.SECONDS);
+
+        } catch (IOException e) {
+            emitter.complete();
+        }
+
+        // ✅ 명시적인 응답 헤더 설정
+        return ResponseEntity.ok()
+                .header("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate")
+                .header("Pragma", "no-cache")
+                .header("Expires", "0")
+                .header("X-Accel-Buffering", "no") // Nginx에서 SSE 버퍼링 방지
+                .header("Access-Control-Allow-Origin", "*") // CORS 허용
+                .header("Access-Control-Allow-Credentials", "true") // 쿠키 허용 (필요할 경우)
+                .body(emitter);
     }
 
     // 읽지 않은 알림 목록 조회

@@ -27,7 +27,7 @@ public class NotificationService {
 
     // SSE 구독 생성
     public SseEmitter createEmitter(Integer userId) {
-        SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
+        SseEmitter emitter = new SseEmitter(3600L * 1000L);
         userEmitters.put(userId, emitter);
 
         emitter.onCompletion(() -> userEmitters.remove(userId));
