@@ -6,9 +6,18 @@ import jpabasic.inspacebe.entity.Space;
 import jpabasic.inspacebe.repository.ItemRepository;
 import jpabasic.inspacebe.repository.SpaceRepository;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.client.WebClient;
+import se.michaelthelin.spotify.SpotifyApi;
+import se.michaelthelin.spotify.model_objects.specification.Paging;
+import se.michaelthelin.spotify.model_objects.specification.Track;
+import se.michaelthelin.spotify.requests.data.search.simplified.SearchTracksRequest;
 
+import java.io.IOException;
 import java.util.*;
 
 @Service
@@ -18,20 +27,20 @@ public class SearchService {
 
     private final SpaceRepository spaceRepository;
 
-    private final WebClient webClient;
+    private final SpotifyApi spotifyApi;
 
-    @Value("${server.proxy-url}") // 프록시 서버 URL 추가
-    private String proxyUrl;
+    private final WebClient webClient;
 
 
     private final Map<String, Item> cachedItems = new HashMap<>();
     private final Map<String, Map<String, Object>> crawledItemCache = new HashMap<>();
 
 
-    public SearchService(ItemRepository itemRepository, SpaceRepository spaceRepository, WebClient.Builder webClientBuilder) {
+    public SearchService(ItemRepository itemRepository, SpaceRepository spaceRepository, WebClient.Builder webClientBuilder, SpotifyApi spotifyApi) {
         this.itemRepository = itemRepository;
         this.spaceRepository = spaceRepository;
-        this.webClient = webClientBuilder.baseUrl(proxyUrl).build();
+        this.spotifyApi = spotifyApi;
+        this.webClient = webClientBuilder.build();
     }
 
     // Crawled 데이터를 위한 메서드
@@ -82,39 +91,56 @@ public class SearchService {
 
     public Map<String, Object> searchAll(String query, List<String> filters) {
         Map<String, Object> results = new HashMap<>();
+        System.out.println("[soyg] Received search request: query=" + query + ", filters=" + filters);
+
+        List<Map<String, Object>> images = searchImages(query);
+        List<Map<String, Object>> videos = searchYouTube(query);
+        List<Map<String, Object>> music = searchSpotify(query);
+        List<Map<String, Object>> spaces = searchSpaces(query);
 
         if (filters == null || filters.isEmpty()) {
-            results.put("images", searchImages(query));
-            results.put("uploadedImages", searchUserUploadedImages(query));
-            results.put("videos", searchYouTube(query));
-            results.put("music", searchSpotify(query));
-            results.put("spaces", searchSpaces(query));
+            results.put("images", images);
+            results.put("videos", videos);
+            results.put("music", music);
+            results.put("spaces", spaces);
             return results;
         }
 
         if (filters.contains("image")) {
-            List<Map<String, Object>> combinedImages = new ArrayList<>();
-            combinedImages.addAll(searchImages(query));
-            combinedImages.addAll(searchUserUploadedImages(query));
-            results.put("images", combinedImages);
+            results.put("images", images);
         }
         if (filters.contains("youtube")) {
-            results.put("videos", searchYouTube(query));
+            results.put("videos", videos);
         }
         if (filters.contains("music")) {
-            results.put("music", searchSpotify(query));
+            results.put("music", music);
         }
         if (filters.contains("space")) {
-            results.put("spaces", searchSpaces(query)); // Space 검색 결과 추가
+            results.put("spaces", spaces);
         }
+
+        System.out.println("[soyg] Final results: " + results);
         return results;
     }
 
-    public List<Map<String, Object>> searchUserUploadedImages(String query) {
-        List<Item> items = itemRepository.findUploadedItems(query);
+    public List<Map<String, Object>> searchImages(String query) {
+        String url = String.format("/api/proxy/search?service=image&query=%s", query);
+        Map<String, Object> response;
+
+        try {
+            response = webClient.get().uri(url).retrieve().bodyToMono(Map.class).block();
+            System.out.println("[soyg] Response from Proxy (Images): " + response);
+        } catch (Exception e) {
+            System.err.println("[soyg] Error during Proxy request (Images): " + e.getMessage());
+            e.printStackTrace();
+            return Collections.emptyList(); // 에러 발생 시 빈 리스트 반환
+        }
 
         List<Map<String, Object>> results = new ArrayList<>();
-        for (Item item : items) {
+
+        //  업로드된 이미지 추가
+        List<Item> uploadedItems = itemRepository.findUploadedItems(query);
+        for (Item item : uploadedItems) {
             Map<String, Object> imageData = new HashMap<>();
             imageData.put("title", item.getTitle());
             imageData.put("imageUrl", item.getImageUrl());
@@ -124,61 +150,63 @@ public class SearchService {
             results.add(imageData);
         }
 
-        return results;
-    }
-
-    public List<Map<String, Object>> searchImages(String query) {
-        String url = String.format("%s/api/proxy/search?service=google&query=%s", proxyUrl, query);
-        Map<String, Object> response;
-
-        try {
-            response = webClient.get().uri(url).retrieve().bodyToMono(Map.class).block();
-            System.out.println("Response from Proxy (Images): " + response); // 응답 로그 추가
-        } catch (Exception e) {
-            System.err.println("Error during Proxy request (Images): " + e.getMessage());
-            e.printStackTrace();
-            return Collections.emptyList(); // 에러 발생 시 빈 리스트 반환
-        }
-
-
-        List<Map<String, Object>> results = new ArrayList<>();
+        //  크롤링된 이미지 추가
         if (response != null && response.containsKey("items")) {
             List<Map<String, Object>> items = (List<Map<String, Object>>) response.get("items");
 
             for (Map<String, Object> item : items) {
                 Map<String, Object> imageData = new HashMap<>();
                 imageData.put("title", item.get("title"));
-                Map<String, String> image = (Map<String, String>) item.get("image");
-                imageData.put("imageUrl", image.get("thumbnailLink"));
                 imageData.put("contentUrl", item.get("link"));
                 imageData.put("isUploaded", false);
                 imageData.put("ctype", CType.IMAGE);
 
+                // 이미지 URL 설정
+                String imageUrl = null;
+                if (item.containsKey("pagemap")) {
+                    Map<String, Object> pagemap = (Map<String, Object>) item.get("pagemap");
+                    if (pagemap.containsKey("cse_image")) {
+                        List<Map<String, String>> cseImageList = (List<Map<String, String>>) pagemap.get("cse_image");
+                        if (!cseImageList.isEmpty()) {
+                            imageUrl = cseImageList.get(0).get("src");
+                        }
+                    }
+                }
+                if (imageUrl == null && item.containsKey("metatags")) {
+                    List<Map<String, Object>> metatags = (List<Map<String, Object>>) item.get("metatags");
+                    if (!metatags.isEmpty() && metatags.get(0).containsKey("og:image")) {
+                        imageUrl = (String) metatags.get(0).get("og:image");
+                    }
+                }
+                imageData.put("imageUrl", imageUrl != null ? imageUrl : "");
+
+                // UUID 생성 후 캐시에 저장
                 String uuid = UUID.randomUUID().toString();
                 imageData.put("itemId", uuid);
                 crawledItemCache.put(uuid, imageData); // 캐시에 저장
 
                 results.add(imageData);
             }
+        } else {
+            System.err.println("[soyg] Google API 응답이 'items' 키를 포함하지 않음: " + response);
         }
 
         return results;
     }
 
-    public List<Map<String, Object>> searchYouTube(String query) {
-        String url = String.format("%s/api/proxy/search?service=youtube&query=%s", proxyUrl, query);
 
-        System.out.println("Proxy URL (YouTube): " + url);
+    public List<Map<String, Object>> searchYouTube(String query) {
+        String url = String.format("/api/proxy/search?service=youtube&query=%s&type=video", query);
 
         Map<String, Object> response;
         try {
             response = webClient.get().uri(url).retrieve().bodyToMono(Map.class).block();
-            System.out.println("Response from Proxy (YouTube): " + response); // 응답 로그 추가
         } catch (Exception e) {
             System.err.println("Error during Proxy request (YouTube): " + e.getMessage());
             e.printStackTrace();
-            return Collections.emptyList(); // 에러 발생 시 빈 리스트 반환
+            return Collections.emptyList();
         }
+
         List<Map<String, Object>> results = new ArrayList<>();
         if (response != null && response.containsKey("items")) {
             List<Map<String, Object>> items = (List<Map<String, Object>>) response.get("items");
@@ -187,49 +215,33 @@ public class SearchService {
                 Map<String, Object> videoData = new HashMap<>();
                 Map<String, Object> id = (Map<String, Object>) item.get("id");
 
-                // 동영상 ID 가져오기
                 String videoId = (String) id.get("videoId");
-
-                // 재생시간 가져오기 위한 API 호출
-                String detailsUrl = String.format(
-                        "https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=%s&key=%s",
-                        videoId, youtubeApiKey
-                );
-
-                Map<String, Object> detailsResponse = webClient.get()
-                        .uri(detailsUrl)
-                        .retrieve()
-                        .bodyToMono(Map.class)
-                        .block();
-
-                String duration = null;
-                if (detailsResponse != null && detailsResponse.containsKey("items")) {
-                    List<Map<String, Object>> detailsItems = (List<Map<String, Object>>) detailsResponse.get("items");
-                    if (!detailsItems.isEmpty()) {
-                        Map<String, Object> contentDetails = (Map<String, Object>) detailsItems.get(0).get("contentDetails");
-                        duration = (String) contentDetails.get("duration");
-                    }
-                }
-
-                // 재생시간 변환 (ISO 8601 Duration 형식 -> 초 단위 변환)
-                Integer ytbDur = parseYouTubeDuration(duration);
 
                 Map<String, Object> snippet = (Map<String, Object>) item.get("snippet");
                 Map<String, Object> thumbnails = (Map<String, Object>) snippet.get("thumbnails");
                 Map<String, String> defaultThumbnail = (Map<String, String>) thumbnails.get("default");
 
                 videoData.put("title", snippet.get("title"));
-                videoData.put("contentUrl", "https://www.youtube.com/watch?v=" + id.get("videoId"));
+                videoData.put("contentUrl", "https://www.youtube.com/watch?v=" + videoId);
                 videoData.put("imageUrl", defaultThumbnail.get("url"));
                 videoData.put("isUploaded", false);
                 videoData.put("ctype", CType.YOUTUBE);
-                videoData.put("ytbDur", ytbDur);
 
+                if (item.containsKey("contentDetails")) {
+                    Map<String, Object> contentDetails = (Map<String, Object>) item.get("contentDetails");
+                    String duration = (String) contentDetails.get("duration"); // ISO 8601 형식 (ex. PT1H2M3S)
+                    System.out.println("Original Duration: " + duration);
+
+                    // 재생시간 변환 (ISO 8601 Duration 형식 -> 초 단위 변환)
+                    Integer ytbDur = parseYouTubeDuration(duration);
+                    videoData.put("ytbDur", ytbDur);
+                } else {
+                    videoData.put("ytbDur", 0); // 기본값 설정
+                }
+
+                // UUID 생성 후 캐시에 저장
                 String uuid = UUID.randomUUID().toString();
                 videoData.put("itemId", uuid);
-
-                System.out.println("Generated video data: " + videoData);
-
                 crawledItemCache.put(uuid, videoData); // 캐시에 저장
 
                 results.add(videoData);
@@ -239,39 +251,31 @@ public class SearchService {
         return results;
     }
 
-    private Integer parseYouTubeDuration(String duration) {
+    public Integer parseYouTubeDuration(String duration) {
         if (duration == null || duration.isEmpty()) {
-            return 0; // null 또는 빈 값일 경우 기본값 반환
+            return 0;
         }
 
-        int hours = 0;
-        int minutes = 0;
-        int seconds = 0;
-
+        int hours = 0, minutes = 0, seconds = 0;
         try {
-            // "PT" 제거
             duration = duration.replace("PT", "");
 
-            // 시간 처리
             if (duration.contains("H")) {
                 String[] split = duration.split("H");
                 hours = Integer.parseInt(split[0]);
-                duration = split.length > 1 ? split[1] : ""; // 남은 부분 업데이트
+                duration = split.length > 1 ? split[1] : "";
             }
 
-            // 분 처리
             if (duration.contains("M")) {
                 String[] split = duration.split("M");
                 minutes = Integer.parseInt(split[0]);
-                duration = split.length > 1 ? split[1] : ""; // 남은 부분 업데이트
+                duration = split.length > 1 ? split[1] : "";
             }
 
-            // 초 처리
             if (duration.contains("S")) {
                 seconds = Integer.parseInt(duration.replace("S", ""));
             }
         } catch (NumberFormatException e) {
-            // 예상치 못한 형식일 경우 기본값 반환
             System.err.println("Invalid duration format: " + duration);
             return 0;
         }
@@ -279,65 +283,46 @@ public class SearchService {
         return hours * 3600 + minutes * 60 + seconds;
     }
 
-    private String getSpotifyAccessToken() {
-        String tokenUrl = "https://accounts.spotify.com/api/token";
-
-        Map<String, Object> response = webClient.post()
-                .uri(tokenUrl)
-                .header("Authorization", "Basic " + Base64.getEncoder().encodeToString((clientId + ":" + clientSecret).getBytes()))
-                .header("Content-Type", "application/x-www-form-urlencoded")
-                .bodyValue("grant_type=client_credentials")
-                .retrieve()
-                .bodyToMono(Map.class)
-                .block();
-
-        return (String) response.get("access_token");
-    }
 
     public List<Map<String, Object>> searchSpotify(String query) {
-        String url = String.format("%s/api/proxy/search?service=spotify&query=%s", proxyUrl, query);
-        System.out.println("Proxy URL (Spotify): " + url); // 요청 URL 로그 추가
-
-        Map<String, Object> response;
-        try {
-            response = webClient.get().uri(url).retrieve().bodyToMono(Map.class).block();
-            System.out.println("Response from Proxy (Spotify): " + response); // 응답 로그 추가
-        } catch (Exception e) {
-            System.err.println("Error during Proxy request (Spotify): " + e.getMessage());
-            e.printStackTrace();
-            return Collections.emptyList(); // 에러 발생 시 빈 리스트 반환
-        }
-
         List<Map<String, Object>> results = new ArrayList<>();
-        if (response != null && response.containsKey("tracks")) {
-            Map<String, Object> tracks = (Map<String, Object>) response.get("tracks");
-            List<Map<String, Object>> items = (List<Map<String, Object>>) tracks.get("items");
 
-            for (Map<String, Object> item : items) {
+        SearchTracksRequest searchTracksRequest = spotifyApi.searchTracks(query).limit(5).build();
+        try {
+            Paging<Track> trackPaging = searchTracksRequest.execute();
+            Track[] tracks = trackPaging.getItems();
+
+            for (Track track : tracks) {
                 Map<String, Object> trackData = new HashMap<>();
-                Map<String, Object> album = (Map<String, Object>) item.get("album");
-                List<Map<String, String>> artists = (List<Map<String, String>>) item.get("artists");
-                Map<String, String> externalUrls = (Map<String, String>) item.get("external_urls");
+                trackData.put("title", track.getName());
+                trackData.put("url", track.getExternalUrls().get("spotify"));
+                trackData.put("artist", track.getArtists()[0].getName());
 
-                trackData.put("title", item.get("name"));
-                trackData.put("contentUrl", externalUrls.get("spotify"));
-                trackData.put("artist", artists.get(0).get("name"));
-                trackData.put("imageUrl", ((Map<String, Object>) ((List<?>) album.get("images")).get(0)).get("url"));
+                // 앨범 이미지 추가
+                if (track.getAlbum().getImages().length > 0) {
+                    trackData.put("thumbnail", track.getAlbum().getImages()[0].getUrl());
+                } else {
+                    trackData.put("thumbnail", ""); // 기본 이미지 없음 처리
+                }
+
                 trackData.put("isUploaded", false);
                 trackData.put("ctype", CType.MUSIC);
 
+                // UUID 생성 후 캐시에 저장
                 String uuid = UUID.randomUUID().toString();
                 trackData.put("itemId", uuid);
-
                 crawledItemCache.put(uuid, trackData); // 캐시에 저장
 
                 results.add(trackData);
             }
+
+        } catch (IOException | se.michaelthelin.spotify.exceptions.SpotifyWebApiException |
+                 org.apache.hc.core5.http.ParseException e) {
+            System.err.println("Error fetching Spotify search results: " + e.getMessage());
         }
 
         return results;
     }
-
     public List<Map<String, Object>> searchSpaces(String query) {
         List<Space> spaces = spaceRepository.findAll();
         List<Map<String, Object>> results = new ArrayList<>();
@@ -358,4 +343,11 @@ public class SearchService {
 
         return results;
     }
+
 }
+
+
+
+
+
+

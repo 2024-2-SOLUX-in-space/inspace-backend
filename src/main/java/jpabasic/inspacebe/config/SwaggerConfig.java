@@ -26,7 +26,7 @@ public class SwaggerConfig {
                 .info(apiInfo())
                 .addSecurityItem(securityRequirement)
                 .components(components)
-                .addServersItem(new Server().url("http://3.35.10.158:8000").description("Proxy Server"))  //프록시 추가
+                .addServersItem(new Server().url("http://inspace-proxy:8000").description("Proxy Server"))  //프록시 추가
                 .addServersItem(new Server().url("http://3.35.10.158:8080").description("Default Backend"));  // 기존 서버 유지
     }
 
