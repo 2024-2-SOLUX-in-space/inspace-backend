@@ -1,11 +1,16 @@
 package jpabasic.inspacebe.controller;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
+import se.michaelthelin.spotify.SpotifyApi;
+
 import java.util.*;
 
 @RestController
@@ -13,6 +18,8 @@ import java.util.*;
 public class ProxyController {
 
     private final RestTemplate restTemplate;
+    private final SpotifyApi spotifyApi;
+    private final String spotifyAccessToken;
 
     @Value("${google.api-key}")
     private String googleApiKey;
@@ -23,14 +30,11 @@ public class ProxyController {
     @Value("${youtube.api-key}")
     private String youtubeApiKey;
 
-    @Value("${spotify.client-id}")
-    private String spotifyClientId;
 
-    @Value("${spotify.client-secret}")
-    private String spotifyClientSecret;
-
-    public ProxyController(RestTemplate restTemplate) {
+    public ProxyController(RestTemplate restTemplate, SpotifyApi spotifyApi, String spotifyAccessToken) {
         this.restTemplate = restTemplate;
+        this.spotifyApi = spotifyApi;
+        this.spotifyAccessToken = spotifyAccessToken;
     }
 
     @GetMapping("/search")
@@ -39,17 +43,18 @@ public class ProxyController {
         Map<String, Object> combinedResults = new HashMap<>();
 
         for (String url : urls) {
-            System.out.println("Sending request to URL: " + url);
+            System.out.println("[soyg] Sending request to URL: " + url);
             System.out.println("Request Headers: Authorization=" + queryParams.get("Authorization")); // 요청 헤더 로그
             ResponseEntity<Map> response;
             try {
                 response = restTemplate.getForEntity(url, Map.class);
-                System.out.println("Response from proxy: " + response.getStatusCode()); // 응답 상태 확인
+                System.out.println("[soyg] Proxy Response: " + response.getBody());
+                System.out.println("[soyg] Response from proxy: " + response.getStatusCode()); // 응답 상태 확인
                 if (response.getBody() != null) {
                     combinedResults.putAll(response.getBody());
                 }
             } catch (Exception e) {
-                System.err.println("Error while calling proxy URL: " + url);
+                System.err.println("[soyg] Error while calling proxy URL: " + url);
                 e.printStackTrace();
                 return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body("Proxy server error: " + e.getMessage());
             }
@@ -71,22 +76,27 @@ public class ProxyController {
         for (String service : serviceArray) {
             String baseUrl;
             switch (service.trim()) {
-                case "image":  // 이미지 검색 (image)
+                case "image":
                     baseUrl = "https://www.googleapis.com/customsearch/v1";
                     queryParams.put("cx", googleSearchEngineId);
                     queryParams.put("key", googleApiKey);
                     queryParams.put("searchType", "image");
+                    queryParams.put("q", queryParams.get("query"));
                     break;
-                case "youtube": // 유튜브 검색
+                case "youtube":
                     baseUrl = "https://www.googleapis.com/youtube/v3/search";
                     queryParams.put("part", "snippet");
                     queryParams.put("maxResults", "10");
                     queryParams.put("key", youtubeApiKey);
+                    queryParams.put("q", queryParams.get("query"));
                     break;
-                case "music":  // Spotify 검색
+                case "music":
                     baseUrl = "https://api.spotify.com/v1/search";
                     queryParams.put("type", "track");
                     queryParams.put("limit", "5");
+                    queryParams.put("q", queryParams.get("query"));
+
+                    queryParams.put("Authorization", "Bearer " + spotifyAccessToken);
                     break;
                 default:
                     continue;

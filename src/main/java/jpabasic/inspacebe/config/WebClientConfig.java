@@ -18,6 +18,7 @@ public class WebClientConfig {
                 .option(io.netty.channel.ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000);  // Connect timeout 설정 (기본 10초)
 
         return WebClient.builder()
-                .clientConnector(new ReactorClientHttpConnector(httpClient));
+                .clientConnector(new ReactorClientHttpConnector(httpClient))
+                .baseUrl("http://inspace-proxy:8000");
     }
 }
