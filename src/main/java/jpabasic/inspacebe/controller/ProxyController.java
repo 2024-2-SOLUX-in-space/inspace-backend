@@ -90,6 +90,12 @@ public class ProxyController {
                     queryParams.put("key", youtubeApiKey);
                     queryParams.put("q", queryParams.get("query"));
                     break;
+                case "youtube-details": // Videos API to get contentDetails
+                    baseUrl = "https://www.googleapis.com/youtube/v3/videos";
+                    queryParams.put("part", "snippet,contentDetails");
+                    queryParams.put("key", youtubeApiKey);
+                    queryParams.put("id", queryParams.get("videoId")); // Pass video IDs
+                    break;
                 case "music":
                     baseUrl = "https://api.spotify.com/v1/search";
                     queryParams.put("type", "track");
