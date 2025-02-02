@@ -1,5 +1,6 @@
 package jpabasic.inspacebe.service.search;
 
+import jpabasic.inspacebe.config.SpotifyConfig;
 import jpabasic.inspacebe.entity.CType;
 import jpabasic.inspacebe.entity.Item;
 import jpabasic.inspacebe.entity.Space;
@@ -30,16 +31,17 @@ public class SearchService {
     private final SpotifyApi spotifyApi;
 
     private final WebClient webClient;
-
+    private final SpotifyConfig spotifyConfig;
 
     private final Map<String, Item> cachedItems = new HashMap<>();
     private final Map<String, Map<String, Object>> crawledItemCache = new HashMap<>();
 
 
-    public SearchService(ItemRepository itemRepository, SpaceRepository spaceRepository, WebClient.Builder webClientBuilder, SpotifyApi spotifyApi) {
+    public SearchService(ItemRepository itemRepository, SpaceRepository spaceRepository, WebClient.Builder webClientBuilder, SpotifyApi spotifyApi, SpotifyConfig spotifyConfig) {
         this.itemRepository = itemRepository;
         this.spaceRepository = spaceRepository;
         this.spotifyApi = spotifyApi;
+        this.spotifyConfig = spotifyConfig;
         this.webClient = webClientBuilder.build();
     }
 
@@ -158,27 +160,28 @@ public class SearchService {
                 Map<String, Object> imageData = new HashMap<>();
                 imageData.put("title", item.get("title"));
                 imageData.put("contentUrl", item.get("link"));
+                imageData.put("imageUrl", item.get("link"));
                 imageData.put("isUploaded", false);
                 imageData.put("ctype", CType.IMAGE);
 
-                // 이미지 URL 설정
-                String imageUrl = null;
-                if (item.containsKey("pagemap")) {
-                    Map<String, Object> pagemap = (Map<String, Object>) item.get("pagemap");
-                    if (pagemap.containsKey("cse_image")) {
-                        List<Map<String, String>> cseImageList = (List<Map<String, String>>) pagemap.get("cse_image");
-                        if (!cseImageList.isEmpty()) {
-                            imageUrl = cseImageList.get(0).get("src");
-                        }
-                    }
-                }
-                if (imageUrl == null && item.containsKey("metatags")) {
-                    List<Map<String, Object>> metatags = (List<Map<String, Object>>) item.get("metatags");
-                    if (!metatags.isEmpty() && metatags.get(0).containsKey("og:image")) {
-                        imageUrl = (String) metatags.get(0).get("og:image");
-                    }
-                }
-                imageData.put("imageUrl", imageUrl != null ? imageUrl : "");
+//                // 이미지 URL 설정
+//                String imageUrl = null;
+//                if (item.containsKey("pagemap")) {
+//                    Map<String, Object> pagemap = (Map<String, Object>) item.get("pagemap");
+//                    if (pagemap.containsKey("cse_image")) {
+//                        List<Map<String, String>> cseImageList = (List<Map<String, String>>) pagemap.get("cse_image");
+//                        if (!cseImageList.isEmpty()) {
+//                            imageUrl = cseImageList.get(0).get("src");
+//                        }
+//                    }
+//                }
+//                if (imageUrl == null && item.containsKey("metatags")) {
+//                    List<Map<String, Object>> metatags = (List<Map<String, Object>>) item.get("metatags");
+//                    if (!metatags.isEmpty() && metatags.get(0).containsKey("og:image")) {
+//                        imageUrl = (String) metatags.get(0).get("og:image");
+//                    }
+//                }
+//                imageData.put("imageUrl", imageUrl != null ? imageUrl : "");
 
                 // UUID 생성 후 캐시에 저장
                 String uuid = UUID.randomUUID().toString();
@@ -215,26 +218,53 @@ public class SearchService {
                 Map<String, Object> videoData = new HashMap<>();
                 Map<String, Object> id = (Map<String, Object>) item.get("id");
 
-                String videoId = (String) id.get("videoId");
+                // 비디오 ID 추출
+                String videoId = id != null ? (String) id.get("videoId") : null;
+                if (videoId == null) continue;
 
+                // snippet 정보 추출
                 Map<String, Object> snippet = (Map<String, Object>) item.get("snippet");
-                Map<String, Object> thumbnails = (Map<String, Object>) snippet.get("thumbnails");
-                Map<String, String> defaultThumbnail = (Map<String, String>) thumbnails.get("default");
+                if (snippet == null) continue;
 
-                videoData.put("title", snippet.get("title"));
+                String title = (String) snippet.get("title");
+                Map<String, Object> thumbnails = (Map<String, Object>) snippet.get("thumbnails");
+                String thumbnailUrl = null;
+
+                if (thumbnails != null) {
+                    Map<String, String> defaultThumbnail = (Map<String, String>) thumbnails.get("default");
+                    thumbnailUrl = defaultThumbnail != null ? defaultThumbnail.get("url") : null;
+                }
+
+                // 비디오 데이터 추가
+                videoData.put("title", title);
                 videoData.put("contentUrl", "https://www.youtube.com/watch?v=" + videoId);
-                videoData.put("imageUrl", defaultThumbnail.get("url"));
+                videoData.put("imageUrl", thumbnailUrl != null ? thumbnailUrl : "");
                 videoData.put("isUploaded", false);
                 videoData.put("ctype", CType.YOUTUBE);
 
-                if (item.containsKey("contentDetails")) {
-                    Map<String, Object> contentDetails = (Map<String, Object>) item.get("contentDetails");
-                    String duration = (String) contentDetails.get("duration"); // ISO 8601 형식 (ex. PT1H2M3S)
-                    System.out.println("Original Duration: " + duration);
+                Map<String, Object> detailsResponse;
+                try {
+                    String detailsUrl = String.format("/api/proxy/search?service=youtube-details&videoId=%s", videoId);
+                    detailsResponse = webClient.get().uri(detailsUrl).retrieve().bodyToMono(Map.class).block();
+                } catch (Exception e) {
+                    System.err.println("Error during Proxy request (YouTube Details): " + e.getMessage());
+                    detailsResponse = null;
+                }
 
-                    // 재생시간 변환 (ISO 8601 Duration 형식 -> 초 단위 변환)
-                    Integer ytbDur = parseYouTubeDuration(duration);
-                    videoData.put("ytbDur", ytbDur);
+                if (detailsResponse != null && detailsResponse.containsKey("items")) {
+                    List<Map<String, Object>> detailsItems = (List<Map<String, Object>>) detailsResponse.get("items");
+
+                    if (!detailsItems.isEmpty()) {
+                        Map<String, Object> contentDetails = (Map<String, Object>) detailsItems.get(0).get("contentDetails");
+                        if (contentDetails != null) {
+                            String duration = (String) contentDetails.get("duration"); // ISO 8601 형식 (ex. PT1H2M3S)
+                            System.out.println("Original Duration: " + duration);
+
+                            // 재생시간 변환 (ISO 8601 Duration 형식 -> 초 단위 변환)
+                            Integer ytbDur = parseYouTubeDuration(duration);
+                            videoData.put("ytbDur", ytbDur);
+                        }
+                    }
                 } else {
                     videoData.put("ytbDur", 0); // 기본값 설정
                 }
@@ -286,6 +316,13 @@ public class SearchService {
 
     public List<Map<String, Object>> searchSpotify(String query) {
         List<Map<String, Object>> results = new ArrayList<>();
+
+        String accessToken = spotifyConfig.getAccessToken(spotifyApi);
+        if (accessToken == null || accessToken.isEmpty()) {
+            System.err.println("[Spotify] Failed to get a valid Access Token.");
+            return results;
+        }
+        spotifyApi.setAccessToken(accessToken);
 
         SearchTracksRequest searchTracksRequest = spotifyApi.searchTracks(query).limit(5).build();
         try {
