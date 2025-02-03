@@ -1,17 +1,17 @@
 package jpabasic.inspacebe.service.search;
 
+import jakarta.transaction.Transactional;
 import jpabasic.inspacebe.config.SpotifyConfig;
+import jpabasic.inspacebe.dto.item.ArchiveRequestDto;
 import jpabasic.inspacebe.entity.CType;
 import jpabasic.inspacebe.entity.Item;
 import jpabasic.inspacebe.entity.Space;
 import jpabasic.inspacebe.repository.ItemRepository;
 import jpabasic.inspacebe.repository.SpaceRepository;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
+
 import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
+
 import org.springframework.web.reactive.function.client.WebClient;
 import se.michaelthelin.spotify.SpotifyApi;
 import se.michaelthelin.spotify.model_objects.specification.Paging;
@@ -163,25 +163,6 @@ public class SearchService {
                 imageData.put("imageUrl", item.get("link"));
                 imageData.put("isUploaded", false);
                 imageData.put("ctype", CType.IMAGE);
-
-//                // 이미지 URL 설정
-//                String imageUrl = null;
-//                if (item.containsKey("pagemap")) {
-//                    Map<String, Object> pagemap = (Map<String, Object>) item.get("pagemap");
-//                    if (pagemap.containsKey("cse_image")) {
-//                        List<Map<String, String>> cseImageList = (List<Map<String, String>>) pagemap.get("cse_image");
-//                        if (!cseImageList.isEmpty()) {
-//                            imageUrl = cseImageList.get(0).get("src");
-//                        }
-//                    }
-//                }
-//                if (imageUrl == null && item.containsKey("metatags")) {
-//                    List<Map<String, Object>> metatags = (List<Map<String, Object>>) item.get("metatags");
-//                    if (!metatags.isEmpty() && metatags.get(0).containsKey("og:image")) {
-//                        imageUrl = (String) metatags.get(0).get("og:image");
-//                    }
-//                }
-//                imageData.put("imageUrl", imageUrl != null ? imageUrl : "");
 
                 // UUID 생성 후 캐시에 저장
                 String uuid = UUID.randomUUID().toString();
@@ -360,6 +341,7 @@ public class SearchService {
 
         return results;
     }
+    @Transactional
     public List<Map<String, Object>> searchSpaces(String query) {
         List<Space> spaces = spaceRepository.findAll();
         List<Map<String, Object>> results = new ArrayList<>();
@@ -367,11 +349,25 @@ public class SearchService {
         for (Space space : spaces) {
             if (space.getSname() != null && space.getSname().contains(query)) {
                 Map<String, Object> spaceData = new HashMap<>();
+
+                //첫번째 page 출력
+                Integer page=getFirstPageId(space);
+
+                List<Item> items=space.getItems();
+                List<ArchiveRequestDto> itemDtos=items.stream()
+                        .filter(item -> Objects.equals(item.getPageId(),page))
+                        .map(ArchiveRequestDto::toArchiveDto)
+                        .toList();
+
+
+
+
                 spaceData.put("spaceId", space.getSpaceId());
                 spaceData.put("sname", space.getSname());
                 spaceData.put("userId", space.getUser().getUserId());
                 spaceData.put("isPublic", space.getIsPublic());
                 spaceData.put("createdAt", space.getCreatedAt());
+                spaceData.put("item",itemDtos);
                 spaceData.put("ctype", CType.SPACE);
 
                 results.add(spaceData);
@@ -381,8 +377,12 @@ public class SearchService {
         return results;
     }
 
-}
+    @Transactional
+    public Integer getFirstPageId(Space space) {
+        return space.getPages().getFirst().getPageId();
+    }
 
+}
 
 
 
