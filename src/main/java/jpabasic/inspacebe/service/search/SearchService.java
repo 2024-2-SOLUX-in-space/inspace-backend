@@ -343,7 +343,7 @@ public class SearchService {
     }
     @Transactional
     public List<Map<String, Object>> searchSpaces(String query) {
-        List<Space> spaces = spaceRepository.findAll();
+        List<Space> spaces = spaceRepository.findAllWithPagesAndItems(query);
         List<Map<String, Object>> results = new ArrayList<>();
 
         for (Space space : spaces) {
@@ -358,8 +358,6 @@ public class SearchService {
                         .filter(item -> Objects.equals(item.getPageId(),page))
                         .map(ArchiveRequestDto::toArchiveDto)
                         .toList();
-
-
 
 
                 spaceData.put("spaceId", space.getSpaceId());
