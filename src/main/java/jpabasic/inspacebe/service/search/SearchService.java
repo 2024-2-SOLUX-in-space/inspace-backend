@@ -1,6 +1,8 @@
 package jpabasic.inspacebe.service.search;
 
+import jakarta.transaction.Transactional;
 import jpabasic.inspacebe.config.SpotifyConfig;
+import jpabasic.inspacebe.dto.item.ArchiveRequestDto;
 import jpabasic.inspacebe.entity.CType;
 import jpabasic.inspacebe.entity.Item;
 import jpabasic.inspacebe.entity.Space;
@@ -360,6 +362,7 @@ public class SearchService {
 
         return results;
     }
+    @Transactional
     public List<Map<String, Object>> searchSpaces(String query) {
         List<Space> spaces = spaceRepository.findAll();
         List<Map<String, Object>> results = new ArrayList<>();
@@ -367,11 +370,25 @@ public class SearchService {
         for (Space space : spaces) {
             if (space.getSname() != null && space.getSname().contains(query)) {
                 Map<String, Object> spaceData = new HashMap<>();
+
+                //첫번째 page 출력
+                Integer page=getFirstPageId(space);
+
+                List<Item> items=space.getItems();
+                List<ArchiveRequestDto> itemDtos=items.stream()
+                        .filter(item -> Objects.equals(item.getPageId(),page))
+                        .map(ArchiveRequestDto::toArchiveDto)
+                        .toList();
+
+
+
+
                 spaceData.put("spaceId", space.getSpaceId());
                 spaceData.put("sname", space.getSname());
                 spaceData.put("userId", space.getUser().getUserId());
                 spaceData.put("isPublic", space.getIsPublic());
                 spaceData.put("createdAt", space.getCreatedAt());
+                spaceData.put("item",itemDtos);
                 spaceData.put("ctype", CType.SPACE);
 
                 results.add(spaceData);
@@ -379,6 +396,11 @@ public class SearchService {
         }
 
         return results;
+    }
+
+    @Transactional
+    public Integer getFirstPageId(Space space) {
+        return space.getPages().getFirst().getPageId();
     }
 
 }
