@@ -43,8 +43,10 @@
 
 ## 기술 아키텍쳐
 
+
 #### 서버 배포 파이프라인
 
+<img width="940" alt="스크린샷 2025-02-07 오전 7 18 38" src="https://github.com/user-attachments/assets/ffc1cfd0-7aff-4353-b88b-0690943ef360" />
 
 
 
