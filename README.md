@@ -1,5 +1,7 @@
+## 서비스 소개
+https://github.com/2024-2-SOLUX-in-space
 
-
+<br/>
 
 
 ## 팀원 소개
